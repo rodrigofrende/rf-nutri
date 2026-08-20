@@ -48,10 +48,14 @@ function buildStartAt(date: string, time: string): Date | null {
   return day
 }
 
-function valuesFrom(initial: Appointment | null | undefined, defaultDayKey?: string): FormValues {
+function valuesFrom(
+  initial: Appointment | null | undefined,
+  defaultDayKey?: string,
+  defaultMemberId?: string,
+): FormValues {
   if (!initial) {
     return {
-      memberId: '',
+      memberId: defaultMemberId ?? '',
       date: defaultDayKey ?? todayDateInput(),
       time: '09:00',
       durationMin: '30',
@@ -78,6 +82,7 @@ export function AppointmentFormModal({
   clinicId,
   initial,
   defaultDayKey,
+  defaultMemberId,
   onSubmit,
   saving,
 }: {
@@ -88,6 +93,8 @@ export function AppointmentFormModal({
   initial?: Appointment | null
   /** Fecha precargada al crear desde un día navegado de la agenda. */
   defaultDayKey?: string
+  /** Paciente precargado al crear desde la ficha. */
+  defaultMemberId?: string
   /** El caller agrega `createdBy` y decide crear o actualizar. */
   onSubmit: (data: Omit<NewAppointment, 'createdBy'>) => void
   saving?: boolean
@@ -103,7 +110,7 @@ export function AppointmentFormModal({
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: valuesFrom(initial, defaultDayKey),
+    defaultValues: valuesFrom(initial, defaultDayKey, defaultMemberId),
   })
 
   const patientOptions = useMemo(

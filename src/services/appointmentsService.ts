@@ -49,6 +49,16 @@ export function listAppointmentsForMember(clinicId: string, memberUid: string) {
   )
 }
 
+/** Turnos de un paciente (vista admin de la ficha). */
+export function listAppointmentsByMemberId(clinicId: string, memberId: string) {
+  if (env.demoMode) return demo.listAppointmentsByMemberId(clinicId, memberId)
+  return getMany<Appointment>(
+    paths.appointments(clinicId),
+    where('memberId', '==', memberId),
+    orderBy('startAt'),
+  )
+}
+
 export function createAppointment(clinicId: string, data: NewAppointment) {
   if (env.demoMode) return demo.createAppointment(clinicId, data)
   return addToCollection(paths.appointments(clinicId), {

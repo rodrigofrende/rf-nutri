@@ -20,7 +20,10 @@ export default defineConfig([
     },
     rules: {
       // Permite parámetros sin usar con prefijo _ (firmas que deben coincidir).
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
     },
   },
 ])

@@ -23,7 +23,7 @@ import { extractFirestoreCode, mapFirestoreError } from '@/utils/firestoreErrors
 import { queryKeys } from '@/hooks/queryKeys'
 import { useMemberships } from '@/hooks/useMemberships'
 import { ROUTES } from '@/routes/routePaths'
-import { persistActiveClinicId } from '@/providers/TenantProvider'
+import { persistActiveClinicId } from '@/config/storageKeys'
 import { reportOperational } from '@/utils/errorReporting'
 
 const schema = z

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { BrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { AuthProvider } from '@/providers/AuthProvider'
 import { TenantProvider } from '@/providers/TenantProvider'
 import { TenantThemeEffect } from '@/providers/TenantThemeEffect'
@@ -24,6 +24,27 @@ const queryClient = new QueryClient({
   },
 })
 
+/**
+ * Árbol de la app. Vive en una ruta splat del data router para que `useBlocker`
+ * (cambios sin guardar) funcione; el matching de URLs lo sigue haciendo AppRoutes.
+ */
+function AppTree() {
+  return (
+    <PrivacyProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <TenantProvider>
+            <TenantThemeEffect />
+            <AppRoutes />
+          </TenantProvider>
+        </AuthProvider>
+      </ToastProvider>
+    </PrivacyProvider>
+  )
+}
+
+const router = createBrowserRouter([{ path: '*', element: <AppTree /> }])
+
 export default function App() {
   return (
     // Por FUERA de todos los providers a propósito: AuthProvider y TenantProvider
@@ -33,19 +54,9 @@ export default function App() {
     // dos botones de navegación dura del boundary.
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <PrivacyProvider>
-            <ToastProvider>
-              <AuthProvider>
-                <TenantProvider>
-                  <TenantThemeEffect />
-                  <AppRoutes />
-                </TenantProvider>
-              </AuthProvider>
-            </ToastProvider>
-          </PrivacyProvider>
-        </BrowserRouter>
+        <RouterProvider router={router} />
       </QueryClientProvider>
     </ErrorBoundary>
   )
 }
+

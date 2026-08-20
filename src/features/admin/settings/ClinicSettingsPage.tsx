@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { BodyFatFormula, ClinicSettings, PreferredUnits } from '@/types'
 import { DEFAULT_CLINIC_SETTINGS } from '@/types'
@@ -8,6 +8,8 @@ import { queryKeys } from '@/hooks/queryKeys'
 import { useTenant } from '@/providers/TenantProvider'
 import { useToast } from '@/providers/ToastProvider'
 import { AppLayout } from '@/components/layout/AppLayout'
+import { UnsavedChangesDialog } from '@/components/shared/UnsavedChangesDialog'
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges'
 import {
   Button,
   Card,
@@ -69,6 +71,7 @@ export function ClinicSettingsPage() {
   }
 
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved)
+  const unsaved = useUnsavedChanges(dirty)
   // Con pliegues activos tiene que quedar al menos una fórmula: sin fórmula no
   // hay % de grasa que calcular y la sección quedaría muda.
   const formulasError = draft.anthropometry.skinfolds && draft.anthropometry.bodyFatFormulas.length === 0
@@ -233,6 +236,7 @@ export function ClinicSettingsPage() {
           <div className="flex justify-end">{saveButton}</div>
         </div>
       )}
+      <UnsavedChangesDialog open={unsaved.blocked} onStay={unsaved.stay} onLeave={unsaved.leave} />
     </AppLayout>
   )
 }

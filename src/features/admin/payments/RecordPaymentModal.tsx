@@ -33,6 +33,7 @@ export function RecordPaymentModal({
   clinicId,
   onSubmit,
   saving,
+  defaultMemberId,
 }: {
   open: boolean
   onClose: () => void
@@ -40,6 +41,7 @@ export function RecordPaymentModal({
   /** El caller agrega `createdBy` y ejecuta la mutación. */
   onSubmit: (data: Omit<NewPatientPayment, 'createdBy'>) => void
   saving?: boolean
+  defaultMemberId?: string
 }) {
   const { data: members = [] } = useMembers(clinicId)
   const { data: tariffs = [] } = useTariffs(clinicId)
@@ -54,7 +56,7 @@ export function RecordPaymentModal({
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      memberId: '',
+      memberId: defaultMemberId ?? '',
       tariffId: '',
       serviceType: 'consulta',
       amount: 0,

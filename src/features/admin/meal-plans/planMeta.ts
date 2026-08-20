@@ -1,4 +1,5 @@
 import type { Food, MealPlan, MealPlanDay, MealPlanItem, MealPlanStatus, PreferredUnits } from '@/types'
+import { emptyDay } from '@/utils/nutrition'
 
 /**
  * Borrador de plan en el editor: el MealPlan completo menos lo que pone el
@@ -6,6 +7,35 @@ import type { Food, MealPlan, MealPlanDay, MealPlanItem, MealPlanStatus, Preferr
  * viaja a useCreateMealPlan/useUpdateMealPlan al guardar.
  */
 export type MealPlanDraft = Omit<MealPlan, 'id' | 'createdBy' | 'updatedAt'>
+
+export function emptyDraft(overrides?: Partial<MealPlanDraft>): MealPlanDraft {
+  return {
+    name: '',
+    description: '',
+    isTemplate: false,
+    memberId: '',
+    memberUid: '',
+    status: 'draft',
+    days: [emptyDay('Día tipo')],
+    generalNotes: '',
+    ...overrides,
+  }
+}
+
+export function planToDraft(plan: MealPlan): MealPlanDraft {
+  return {
+    name: plan.name,
+    description: plan.description,
+    isTemplate: plan.isTemplate,
+    memberId: plan.memberId,
+    memberUid: plan.memberUid,
+    status: plan.status,
+    targetKcal: plan.targetKcal,
+    targetMacros: plan.targetMacros,
+    days: plan.days,
+    generalNotes: plan.generalNotes,
+  }
+}
 
 export const PLAN_STATUS_LABELS: Record<MealPlanStatus, string> = {
   draft: 'Borrador',

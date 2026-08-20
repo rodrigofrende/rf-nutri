@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { Member } from '@/types'
 import { Button, FormField, Modal, Select } from '@/components/ui'
 
@@ -26,11 +26,6 @@ export function AssignPlanModal({
   loading?: boolean
 }) {
   const [memberId, setMemberId] = useState(defaultMemberId ?? '')
-
-  // Re-sincroniza la preselección cada vez que se abre (el draft pudo cambiar)
-  useEffect(() => {
-    if (open) setMemberId(defaultMemberId ?? '')
-  }, [open, defaultMemberId])
 
   const selected = patients.find((p) => p.id === memberId)
 

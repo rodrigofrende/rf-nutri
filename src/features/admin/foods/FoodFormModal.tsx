@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from 'react'
-import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import { Controller, useFieldArray, useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Plus, Trash2 } from 'lucide-react'
@@ -107,7 +107,7 @@ export function FoodFormModal({
     reset,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as Resolver<FormValues>,
     defaultValues: DEFAULT_VALUES,
   })
   const { fields, append, remove } = useFieldArray({ control, name: 'measures' })

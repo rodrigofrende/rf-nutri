@@ -2,9 +2,10 @@ import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import type { Tariff, TariffIconKey } from '@/types'
-import { Button, FormField, IconSelect, Input, Modal, MoneyInput, Toggle } from '@/components/ui'
+import type { Tariff, TariffIconKey, TariffKind } from '@/types'
+import { Button, FormField, IconSelect, Input, Modal, MoneyInput, Select, Toggle } from '@/components/ui'
 import { TARIFF_ICON_OPTIONS } from '@/utils/tariffIcons'
+import { TARIFF_KIND_LABELS } from '@/utils/tariffs'
 
 const TARIFF_ICON_VALUES = [
   'membership',
@@ -19,10 +20,17 @@ const TARIFF_ICON_VALUES = [
   'sparkles',
 ] as const satisfies readonly TariffIconKey[]
 
+const TARIFF_KIND_VALUES = [
+  'consulta',
+  'tratamiento',
+  'antropometria',
+  'otro',
+] as const satisfies readonly TariffKind[]
+
 const schema = z.object({
   name: z.string().min(2, 'Ingresá un nombre'),
   icon: z.enum(TARIFF_ICON_VALUES).optional(),
-  weeklyFrequency: z.number().min(0, 'No puede ser menor a 0').max(7, 'El máximo es 7 veces por semana'),
+  kind: z.enum(TARIFF_KIND_VALUES),
   price: z.number().min(0),
   description: z.string().optional(),
   active: z.boolean(),
@@ -31,8 +39,8 @@ type FormValues = z.infer<typeof schema>
 
 const DEFAULT_VALUES: FormValues = {
   name: '',
-  icon: 'membership',
-  weeklyFrequency: 3,
+  icon: 'calendar',
+  kind: 'consulta',
   price: 0,
   description: '',
   active: true,
@@ -42,8 +50,8 @@ function valuesFromTariff(tariff?: Tariff | null): FormValues {
   if (!tariff) return DEFAULT_VALUES
   return {
     name: tariff.name,
-    icon: tariff.icon ?? 'membership',
-    weeklyFrequency: tariff.weeklyFrequency,
+    icon: tariff.icon ?? 'calendar',
+    kind: tariff.kind ?? 'otro',
     price: tariff.price,
     description: tariff.description ?? '',
     active: tariff.active,
@@ -83,6 +91,11 @@ export function TariffFormModal({
     onClose()
   }
 
+  const kindOptions = TARIFF_KIND_VALUES.map((value) => ({
+    value,
+    label: TARIFF_KIND_LABELS[value],
+  }))
+
   return (
     <Modal open={open} onClose={close} title={initial ? 'Editar tarifa' : 'Nueva tarifa'} size="lg">
       <form onSubmit={handleSubmit((v) => onSubmit(v))} className="space-y-4">
@@ -92,7 +105,7 @@ export function TariffFormModal({
             name="icon"
             render={({ field }) => (
               <IconSelect
-                value={field.value ?? 'membership'}
+                value={field.value ?? 'calendar'}
                 onChange={field.onChange}
                 options={TARIFF_ICON_OPTIONS}
                 placeholder="Elegir icono"
@@ -101,20 +114,14 @@ export function TariffFormModal({
           />
         </FormField>
 
-        <FormField label="Nombre del plan / servicio" error={errors.name?.message} required>
-          <Input placeholder="Ej. Musculación" {...register('name')} invalid={!!errors.name} />
+        <FormField label="Nombre del servicio" error={errors.name?.message} required>
+          <Input placeholder="Ej. Consulta de seguimiento" {...register('name')} invalid={!!errors.name} />
         </FormField>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <FormField label="Veces por semana" hint="0 = libre / sin límite" error={errors.weeklyFrequency?.message}>
-            <Input
-              type="number"
-              min={0}
-              max={7}
-              {...register('weeklyFrequency', { valueAsNumber: true })}
-              invalid={!!errors.weeklyFrequency}
-            />
+          <FormField label="Tipo">
+            <Select options={kindOptions} {...register('kind')} />
           </FormField>
-          <FormField label="Precio mensual">
+          <FormField label="Precio">
             <Controller
               control={control}
               name="price"
@@ -123,7 +130,7 @@ export function TariffFormModal({
           </FormField>
         </div>
         <FormField label="Descripción">
-          <Input placeholder="Ej. Acceso a sala de musculación" {...register('description')} />
+          <Input placeholder="Ej. 45 minutos, incluye antropometría" {...register('description')} />
         </FormField>
 
         <Controller
@@ -133,8 +140,8 @@ export function TariffFormModal({
             <Toggle
               checked={field.value}
               onChange={field.onChange}
-              label="Activa (visible para los pacientes)"
-              tooltip="Solo las tarifas activas aparecen al asignar o editar el servicio de un paciente."
+              label="Activa (visible al registrar un cobro)"
+              tooltip="Solo las tarifas activas aparecen al registrar un cobro o un turno."
             />
           )}
         />

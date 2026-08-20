@@ -32,6 +32,8 @@ export const queryKeys = {
     ['appointments', clinicId, fromKey, toKey] as const,
   myAppointments: (clinicId: string, memberUid: string) =>
     ['appointments', clinicId, 'mine', memberUid] as const,
+  memberAppointments: (clinicId: string, memberId: string) =>
+    ['appointments', clinicId, 'member', memberId] as const,
   stats: (clinicId: string) => ['stats', clinicId] as const,
   dashboard: (clinicId: string) => ['dashboard', clinicId] as const,
   platformStats: () => ['platformStats'] as const,

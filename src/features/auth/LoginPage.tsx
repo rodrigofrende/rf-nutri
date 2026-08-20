@@ -29,7 +29,7 @@ import { extractAuthCode, mapAuthError } from '@/utils/authErrors'
 import { extractFirestoreCode, mapFirestoreError } from '@/utils/firestoreErrors'
 import { BrandLockup, Button, Card, FormField, Input, PasswordInput, Text } from '@/components/ui'
 import { publicClinicRoute, ROUTES } from '@/routes/routePaths'
-import { persistActiveClinicId } from '@/providers/TenantProvider'
+import { persistActiveClinicId } from '@/config/storageKeys'
 import { reportOperational } from '@/utils/errorReporting'
 
 const schema = z.object({

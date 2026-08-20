@@ -11,6 +11,7 @@ import type { User } from 'firebase/auth'
 import { db } from '@/lib/firebase'
 import type { Clinic, Member, Membership, Role } from '@/types'
 import { env } from '@/config/env'
+import { extractFirestoreCode } from '@/utils/firestoreErrors'
 import { syncClinicMembershipIndex, type ClinicMembershipIndex } from './membershipIndexService'
 import { listClinics } from './clinicsService'
 import { getMany } from './firestore'
@@ -96,7 +97,9 @@ export async function listMembershipsForUser(
     )
   }
 
-  const indexedMemberships = await getMany<ClinicMembershipIndex & { id: string }>(paths.userClinicMemberships(uid))
+  const indexedMemberships = await getMany<ClinicMembershipIndex & { id: string }>(
+    paths.userClinicMemberships(uid),
+  )
   if (indexedMemberships.length) {
     const memberships = await Promise.all(
       indexedMemberships.map(async (index) => {
@@ -120,26 +123,33 @@ export async function listMembershipsForUser(
     return memberships
   }
 
-  const q = query(collectionGroup(db, 'members'), where('uid', '==', uid))
-  const snap = await getDocs(q)
-  const memberships = await Promise.all(
-    snap.docs.map(async (d) => {
-      const clinicId = d.ref.parent.parent?.id
-      if (!clinicId) return null
-      const member = d.data() as Member
-      await syncClinicMembershipIndex(uid, clinicId, { memberId: d.id, role: member.role })
-      const clinicSnap = await getDoc(doc(db, 'clinics', clinicId))
-      const clinic = clinicSnap.data() as Omit<Clinic, 'id'> | undefined
-      return {
-        clinicId,
-        memberId: d.id,
-        clinicName: clinic?.name ?? 'Consultorio',
-        clinicLogoURL: clinic?.logoURL,
-        clinicTheme: clinic?.theme,
-        role: member.role as Role,
-      } satisfies Membership
-    }),
-  )
-
-  return memberships.filter((m) => m !== null) as Membership[]
+  // Fallback: members reclamados cuyo índice se perdió. La collection-group
+  // puede dar permission-denied (rules con get() en OR); en bootstrap (usuario
+  // nuevo, sin clinics) eso es "sin accesos", no un error de pantalla.
+  try {
+    const q = query(collectionGroup(db, 'members'), where('uid', '==', uid))
+    const snap = await getDocs(q)
+    const memberships = await Promise.all(
+      snap.docs.map(async (d) => {
+        const clinicId = d.ref.parent.parent?.id
+        if (!clinicId) return null
+        const member = d.data() as Member
+        await syncClinicMembershipIndex(uid, clinicId, { memberId: d.id, role: member.role })
+        const clinicSnap = await getDoc(doc(db, 'clinics', clinicId))
+        const clinic = clinicSnap.data() as Omit<Clinic, 'id'> | undefined
+        return {
+          clinicId,
+          memberId: d.id,
+          clinicName: clinic?.name ?? 'Consultorio',
+          clinicLogoURL: clinic?.logoURL,
+          clinicTheme: clinic?.theme,
+          role: member.role as Role,
+        } satisfies Membership
+      }),
+    )
+    return memberships.filter((m) => m !== null) as Membership[]
+  } catch (err) {
+    if (extractFirestoreCode(err) === 'permission-denied') return []
+    throw err
+  }
 }

@@ -46,7 +46,9 @@ export function useMyPayments(clinicId: string, memberUid: string) {
 export function useRecordPayment(clinicId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (payment: NewPatientPayment) => recordPayment(clinicId, payment),
+    mutationFn: async (payment: NewPatientPayment) => {
+      await recordPayment(clinicId, payment)
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.payments(clinicId) })
       qc.invalidateQueries({ queryKey: queryKeys.dashboard(clinicId) })

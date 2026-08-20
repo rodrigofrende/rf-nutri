@@ -31,7 +31,9 @@ export function useDiaryEntries(
 export function useSaveDiaryEntry(clinicId: string, memberId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (entry: DiaryEntryInput) => saveDiaryEntry(clinicId, memberId, entry),
+    mutationFn: async (entry: DiaryEntryInput) => {
+      await saveDiaryEntry(clinicId, memberId, entry)
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['diary', clinicId, memberId] })
     },
@@ -61,7 +63,9 @@ export function useWeightLogs(clinicId: string, memberId: string) {
 export function useSaveWeightLog(clinicId: string, memberId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (input: WeightLogInput) => saveWeightLog(clinicId, memberId, input),
+    mutationFn: async (input: WeightLogInput) => {
+      await saveWeightLog(clinicId, memberId, input)
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.weightLogs(clinicId, memberId) })
     },

@@ -74,7 +74,7 @@ export async function getPlatformStats(): Promise<PlatformStats> {
       }
     }),
   )
-  return per.reduce(
+  return per.reduce<PlatformStats>(
     (acc, x) => ({
       pacientes: acc.pacientes + x.pacientes,
       mealPlans: acc.mealPlans + x.mealPlans,

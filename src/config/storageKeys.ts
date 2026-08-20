@@ -12,6 +12,10 @@
 /** Consultorio activo elegido por el usuario (lo escribe/lee TenantProvider). */
 export const ACTIVE_CLINIC_STORAGE_KEY = 'clinic:activeClinicId'
 
+export function persistActiveClinicId(clinicId: string) {
+  localStorage.setItem(ACTIVE_CLINIC_STORAGE_KEY, clinicId)
+}
+
 /**
  * Id anónimo por pestaña. Sirve para correlacionar varios avisos del mismo
  * intento y para distinguir "un paciente reintentando 3 veces" de "3 pacientes".

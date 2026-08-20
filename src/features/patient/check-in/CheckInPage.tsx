@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { ClipboardCheck, Minus, Plus } from 'lucide-react'
 import type { CheckIn } from '@/types'
 import { useTenant } from '@/providers/TenantProvider'
@@ -145,8 +145,7 @@ export function CheckInPage() {
   const [comment, setComment] = useState('')
   // Precarga el check-in de la semana cuando llega de Firestore (upsert editable).
   const [loadedKey, setLoadedKey] = useState<string | null>(null)
-  useEffect(() => {
-    if (!existing || loadedKey === existing.id) return
+  if (existing && loadedKey !== existing.id) {
     setValues({
       energy: existing.energy,
       sleep: existing.sleep,
@@ -155,7 +154,7 @@ export function CheckInPage() {
     })
     setComment(existing.comment ?? '')
     setLoadedKey(existing.id)
-  }, [existing, loadedKey])
+  }
 
   const submit = () =>
     run(

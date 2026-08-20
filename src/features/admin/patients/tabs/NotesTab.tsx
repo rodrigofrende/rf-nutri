@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Timestamp } from 'firebase/firestore'
-import { NotebookPen, Plus, Target, Trash2, Weight } from 'lucide-react'
+import { FlaskConical, NotebookPen, Plus, Stethoscope, Trash2 } from 'lucide-react'
 import type { NoteType } from '@/types'
 import { useCreateNote, useNotes, useRemoveNote } from '@/hooks/useMemberNotes'
 import { useToastAction } from '@/hooks/useToastAction'
@@ -9,15 +9,25 @@ import { formatDate } from '@/utils/format'
 
 const TYPE_META: Record<
   NoteType,
-  { label: string; tone: 'brand' | 'green' | 'neutral'; icon: typeof Target; placeholder: string }
+  { label: string; tone: 'brand' | 'green' | 'neutral'; icon: typeof Stethoscope; placeholder: string }
 > = {
-  objective: { label: 'Objetivo', tone: 'brand', icon: Target, placeholder: 'Ej. bajar 4kg en 2 meses' },
-  weight: { label: 'Peso', tone: 'green', icon: Weight, placeholder: 'Ej. 82kg' },
+  consultation: {
+    label: 'Consulta',
+    tone: 'brand',
+    icon: Stethoscope,
+    placeholder: 'Ej. Ajustamos colaciones y sumamos hidratación',
+  },
+  lab: {
+    label: 'Laboratorio',
+    tone: 'green',
+    icon: FlaskConical,
+    placeholder: 'Ej. TSH 2.1, glucemia 92',
+  },
   observation: {
     label: 'Observación',
     tone: 'neutral',
     icon: NotebookPen,
-    placeholder: 'Ej. mejorar técnica de dominadas',
+    placeholder: 'Ej. Llega con más energía, duerme mejor',
   },
 }
 
@@ -68,8 +78,8 @@ export function NotesTab({
               value={type}
               onChange={(e) => setType(e.target.value as NoteType)}
               options={[
-                { value: 'objective', label: 'Objetivo' },
-                { value: 'weight', label: 'Peso' },
+                { value: 'consultation', label: 'Consulta' },
+                { value: 'lab', label: 'Laboratorio' },
                 { value: 'observation', label: 'Observación' },
               ]}
             />
@@ -93,7 +103,7 @@ export function NotesTab({
         <EmptyState
           icon={NotebookPen}
           title="Sin anotaciones"
-          description="Registrá objetivos, seguimiento de peso u observaciones del paciente."
+          description="Registrá lo que pasó en consulta, labs u observaciones que el paciente no debería ver."
         />
       ) : (
         <div className="space-y-2">

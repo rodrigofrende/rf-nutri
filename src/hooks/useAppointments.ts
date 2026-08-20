@@ -3,6 +3,7 @@ import type { AppointmentStatus } from '@/types'
 import {
   confirmMyAppointment,
   createAppointment,
+  listAppointmentsByMemberId,
   listAppointmentsByRange,
   listAppointmentsForMember,
   removeAppointment,
@@ -28,6 +29,15 @@ export function useMyAppointments(clinicId: string, memberUid: string) {
     queryKey: queryKeys.myAppointments(clinicId, memberUid),
     queryFn: () => listAppointmentsForMember(clinicId, memberUid),
     enabled: !!clinicId && !!memberUid,
+  })
+}
+
+/** Turnos de un paciente (ficha admin). */
+export function useMemberAppointments(clinicId: string, memberId: string) {
+  return useQuery({
+    queryKey: queryKeys.memberAppointments(clinicId, memberId),
+    queryFn: () => listAppointmentsByMemberId(clinicId, memberId),
+    enabled: !!clinicId && !!memberId,
   })
 }
 

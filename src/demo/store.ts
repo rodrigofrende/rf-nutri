@@ -537,6 +537,9 @@ export function listAppointmentsByRange(_clinicId: string, from: Date, to: Date)
 export function listAppointmentsForMember(_clinicId: string, memberUid: string) {
   return ok(byStartAsc(data.appointments.filter((a) => a.memberUid === memberUid)).map((a) => ({ ...a })))
 }
+export function listAppointmentsByMemberId(_clinicId: string, memberId: string) {
+  return ok(byStartAsc(data.appointments.filter((a) => a.memberId === memberId)).map((a) => ({ ...a })))
+}
 export function createAppointment(_clinicId: string, payload: NewAppointmentInput) {
   const id = nextId('appt')
   data.appointments.push({

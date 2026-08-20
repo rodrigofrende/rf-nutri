@@ -18,7 +18,9 @@ export function useCheckIns(clinicId: string, memberId: string) {
 export function useSaveCheckIn(clinicId: string, memberId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (input: CheckInInput) => saveCheckIn(clinicId, memberId, input),
+    mutationFn: async (input: CheckInInput) => {
+      await saveCheckIn(clinicId, memberId, input)
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.checkIns(clinicId, memberId) })
     },

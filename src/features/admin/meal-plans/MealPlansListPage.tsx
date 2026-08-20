@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   BookmarkPlus,
@@ -196,7 +196,7 @@ function SegmentButton({
 }: {
   active: boolean
   onClick: () => void
-  children: string
+  children: ReactNode
 }) {
   return (
     <button

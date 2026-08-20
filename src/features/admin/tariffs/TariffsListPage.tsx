@@ -13,7 +13,7 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import { Badge, Button, Card, ConfirmDialog, EmptyState, FullPageSpinner, Heading, IconButton, Text } from '@/components/ui'
 import { cn } from '@/utils/cn'
 import { formatCurrency } from '@/utils/format'
-import { frequencyLabel } from '@/utils/tariffs'
+import { tariffKindLabel } from '@/utils/tariffs'
 import { tariffIconMeta } from '@/utils/tariffIcons'
 import { TariffFormModal } from './TariffFormModal'
 
@@ -76,7 +76,7 @@ export function TariffsListPage() {
         <EmptyState
           icon={tariffIconMeta().icon}
           title="Sin tarifas"
-          description="Creá los planes que ofrecés (servicio, frecuencia y precio) para asignarlos a tus pacientes."
+          description="Creá los servicios que cobrás (consulta, tratamiento, antropometría) para precargarlos al registrar un cobro."
         />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -104,7 +104,7 @@ export function TariffsListPage() {
               </div>
               <div className="mt-3 flex items-center gap-2">
                 <Heading variant="card">{t.name}</Heading>
-                <Badge tone="neutral">{frequencyLabel(t.weeklyFrequency)}</Badge>
+                <Badge tone="neutral">{tariffKindLabel(t.kind)}</Badge>
                 {!t.active && <Badge tone="amber">Inactiva</Badge>}
               </div>
               {t.description && (
@@ -114,7 +114,6 @@ export function TariffsListPage() {
               )}
               <Text variant="metric" className="mt-3">
                 {formatCurrency(t.price)}
-                <span className="text-sm font-normal text-zinc-400"> /mes</span>
               </Text>
             </Card>
             )

@@ -2,7 +2,7 @@ import { createContext, useContext, useMemo, useState, type ReactNode } from 're
 import type { Membership, Role } from '@/types'
 import { useAuth } from './AuthProvider'
 import { useMemberships } from '@/hooks/useMemberships'
-import { ACTIVE_CLINIC_STORAGE_KEY } from '@/config/storageKeys'
+import { ACTIVE_CLINIC_STORAGE_KEY, persistActiveClinicId } from '@/config/storageKeys'
 
 interface TenantContextValue {
   memberships: Membership[]
@@ -17,10 +17,6 @@ interface TenantContextValue {
 }
 
 const TenantContext = createContext<TenantContextValue | null>(null)
-
-export function persistActiveClinicId(clinicId: string) {
-  localStorage.setItem(ACTIVE_CLINIC_STORAGE_KEY, clinicId)
-}
 
 export function TenantProvider({ children }: { children: ReactNode }) {
   const { user, isSuperAdmin } = useAuth()
