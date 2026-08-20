@@ -4,8 +4,6 @@ import { useCheckIns } from '@/hooks/useCheckIns'
 import { Card, CardBody, EmptyState, Spinner } from '@/components/ui'
 import { cn } from '@/utils/cn'
 import { formatDate } from '@/utils/format'
-import { PageHelp } from '@/components/shared/PageHelp'
-import { FICHA_CHECKIN_HELP } from '@/content/help'
 
 type MetricKey = 'energy' | 'sleep' | 'hunger' | 'adherence'
 
@@ -57,14 +55,11 @@ export function CheckInsTab({ clinicId, memberId }: { clinicId: string; memberId
 
   if (checkIns.length === 0) {
     return (
-      <div className="space-y-4">
-        <PageHelp items={FICHA_CHECKIN_HELP} title="Cómo funcionan los check-ins" compact />
-        <EmptyState
-          icon={ClipboardCheck}
-          title="Sin check-ins"
-          description="Cuando el paciente complete su check-in semanal, vas a poder comparar semana a semana."
-        />
-      </div>
+      <EmptyState
+        icon={ClipboardCheck}
+        title="Sin check-ins"
+        description="Cuando el paciente complete su check-in semanal, vas a poder comparar semana a semana."
+      />
     )
   }
 
@@ -72,7 +67,6 @@ export function CheckInsTab({ clinicId, memberId }: { clinicId: string; memberId
 
   return (
     <div className="space-y-4">
-      <PageHelp items={FICHA_CHECKIN_HELP} title="Cómo funcionan los check-ins" compact />
       {previous && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Card>

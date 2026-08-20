@@ -1,6 +1,6 @@
 import { Pencil, Target } from 'lucide-react'
 import type { Member } from '@/types'
-import { Badge, Button, Card, CardBody, CardHeader, Sensitive } from '@/components/ui'
+import { Badge, Button, Card, CardBody, CardHeader } from '@/components/ui'
 import { InfoGrid } from '@/components/shared/InfoGrid'
 import { formatDate, toDate } from '@/utils/format'
 import { ACTIVITY_LABELS, ageAt } from '@/utils/anthropometry'
@@ -71,13 +71,12 @@ export function FichaTab({ member, onEdit }: { member: Member; onEdit: () => voi
           <InfoGrid
             items={[
               { label: 'Nombre', value: member.fullName },
-              { label: 'Email', value: <Sensitive>{member.email}</Sensitive> },
-              // Solo cuando difiere del email de contacto: repetido no aporta.
+              { label: 'Email', value: member.email },
               ...(member.loginEmail &&
               member.loginEmail.trim().toLowerCase() !== member.email.trim().toLowerCase()
-                ? [{ label: 'Email de acceso', value: <Sensitive>{member.loginEmail}</Sensitive> }]
+                ? [{ label: 'Email de acceso', value: member.loginEmail }]
                 : []),
-              { label: 'Teléfono', value: member.phone ? <Sensitive>{member.phone}</Sensitive> : '—' },
+              { label: 'Teléfono', value: member.phone ? member.phone : '—' },
               {
                 label: 'Nacimiento',
                 value: birth ? `${formatDate(member.birthDate)} (${age} años)` : '—',
@@ -144,7 +143,7 @@ export function FichaTab({ member, onEdit }: { member: Member; onEdit: () => voi
                 { label: 'Plan', value: insurance.plan || '—' },
                 {
                   label: 'N° de afiliado',
-                  value: insurance.memberNumber ? <Sensitive>{insurance.memberNumber}</Sensitive> : '—',
+                  value: insurance.memberNumber ? insurance.memberNumber : '—',
                 },
               ]}
             />

@@ -2,11 +2,10 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { LogOut, X } from 'lucide-react'
 import { useAuth } from '@/providers/AuthProvider'
 import { useTenant } from '@/providers/TenantProvider'
-import { usePrivacy } from '@/providers/PrivacyProvider'
 import { ROLE_LABEL } from '@/utils/roles'
 import { cn } from '@/utils/cn'
 import { emailLocalPart } from '@/utils/loginEmail'
-import { Avatar, BrandLockup, LogoImage, Text, Toggle } from '@/components/ui'
+import { Avatar, BrandLockup, LogoImage, Text } from '@/components/ui'
 import { APP_NAME, APP_VERSION } from '@/config/app'
 import { TenantSwitcher } from './TenantSwitcher'
 import { navGroupsForRole, PLATFORM_NAV, SUPER_NAV_ITEM, type NavItem } from './navItems'
@@ -36,7 +35,6 @@ function SidebarLink({ item, onClose }: { item: NavItem; onClose: () => void }) 
 export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { user, logout } = useAuth()
   const { role, activeMembership, memberships, isSuperAdmin } = useTenant()
-  const { blurred, toggle } = usePrivacy()
   const { pathname } = useLocation()
   // Plataforma RF NUTRI (vistas del super-admin): marca general, sin logo de clinic.
   const isPlatform = pathname.startsWith('/super')
@@ -46,8 +44,6 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
   const logoURL = isPlatform ? undefined : activeMembership?.clinicLogoURL
   // El switcher solo tiene sentido si hay más de un clinic (evita duplicar el nombre).
   const showSwitcher = !isPlatform && memberships.length > 1
-  // Modo discreto: por ahora solo para el admin del clinic.
-  const showDiscreto = role === 'admin' && !isPlatform
   const userEmail = user?.email ?? ''
   const userLabel = user?.displayName || emailLocalPart(userEmail) || 'Usuario'
   const roleLabel = isSuperAdmin ? 'Super administrador' : role ? ROLE_LABEL[role] : ''
@@ -152,18 +148,6 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
             </div>
 
             <div className="space-y-0.5">
-              {showDiscreto && (
-                <div
-                  className="rounded-[var(--radius-control)] px-3 py-2.5"
-                  title="Blurea montos y datos sensibles (para compartir pantalla)"
-                >
-                  <Toggle
-                    checked={blurred}
-                    onChange={() => toggle()}
-                    label="Modo discreto"
-                  />
-                </div>
-              )}
               <button
                 type="button"
                 onClick={() => logout()}

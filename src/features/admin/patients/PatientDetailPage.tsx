@@ -27,7 +27,6 @@ import {
   IconButton,
   Input,
   Modal,
-  Sensitive,
 } from '@/components/ui'
 import { toDate } from '@/utils/format'
 import { suggestLoginEmail, tenantEmailDomain } from '@/utils/loginEmail'
@@ -46,6 +45,16 @@ import { CheckInsTab } from './tabs/CheckInsTab'
 import { AppointmentsTab } from './tabs/AppointmentsTab'
 import { PaymentsTab } from './tabs/PaymentsTab'
 import { NotesTab } from './tabs/NotesTab'
+import { PageHelp } from '@/components/shared/PageHelp'
+import {
+  ANTHROPOMETRY_HELP,
+  FICHA_APPOINTMENTS_HELP,
+  FICHA_CHECKIN_HELP,
+  FICHA_DIARY_HELP,
+  FICHA_PAYMENTS_HELP,
+  FICHA_PLAN_HELP,
+  type PageHelpItem,
+} from '@/content/help'
 
 type Tab =
   | 'ficha'
@@ -69,6 +78,15 @@ const TABS: { key: Tab; label: string; userOnly?: boolean }[] = [
   { key: 'payments', label: 'Pagos', userOnly: true },
   { key: 'notes', label: 'Notas' },
 ]
+
+const TAB_HELP: Partial<Record<Tab, { items: PageHelpItem[]; title: string }>> = {
+  anthropometry: { items: ANTHROPOMETRY_HELP, title: 'Cómo funciona la antropometría' },
+  plan: { items: FICHA_PLAN_HELP, title: 'Cómo funciona el plan' },
+  diary: { items: FICHA_DIARY_HELP, title: 'Cómo funciona el diario' },
+  checkins: { items: FICHA_CHECKIN_HELP, title: 'Cómo funcionan los check-ins' },
+  appointments: { items: FICHA_APPOINTMENTS_HELP, title: 'Cómo funcionan los turnos' },
+  payments: { items: FICHA_PAYMENTS_HELP, title: 'Cómo funcionan los cobros' },
+}
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
 
@@ -122,6 +140,7 @@ export function PatientDetailPage() {
   const settings = clinic?.settings ?? DEFAULT_CLINIC_SETTINGS
   const isAdminMember = member.role === 'admin'
   const visibleTabs = TABS.filter((t) => !t.userOnly || !isAdminMember)
+  const tabHelp = TAB_HELP[tab]
   const birth = toDate(member.birthDate)
   const age = birth ? ageAt(birth) : null
 
@@ -217,12 +236,12 @@ export function PatientDetailPage() {
           <div className="flex items-center gap-4">
             <Avatar name={member.fullName} src={member.photoURL} size="lg" />
             <div className="min-w-0">
-              <Sensitive className="block truncate text-sm text-zinc-500">{member.email}</Sensitive>
+              <p className="truncate text-sm text-zinc-500">{member.email}</p>
               <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-zinc-500">
                 {member.phone && (
                   <span className="inline-flex items-center gap-1">
                     <Phone className="size-3.5" aria-hidden />
-                    <Sensitive>{member.phone}</Sensitive>
+                    {member.phone}
                   </span>
                 )}
                 {age != null && <span>{age} años</span>}
@@ -259,28 +278,34 @@ export function PatientDetailPage() {
           </div>
         </div>
 
-        <div className="relative border-t border-zinc-100">
-          <div className="no-scrollbar flex gap-1 overflow-x-auto px-3">
-            {visibleTabs.map((t) => (
-              <button
-                key={t.key}
-                onClick={() => setTab(t.key)}
-                className={cn(
-                  'whitespace-nowrap border-b-2 px-3 py-3 text-sm font-medium transition-colors',
-                  tab === t.key
-                    ? 'border-brand-600 text-brand-700'
-                    : 'border-transparent text-zinc-500 hover:text-zinc-700',
-                )}
-              >
-                {t.label}
-              </button>
-            ))}
+        <div className="flex items-stretch border-t border-zinc-100">
+          <div className="relative min-w-0 flex-1">
+            <div className="no-scrollbar flex gap-1 overflow-x-auto px-3">
+              {visibleTabs.map((t) => (
+                <button
+                  key={t.key}
+                  onClick={() => setTab(t.key)}
+                  className={cn(
+                    'whitespace-nowrap border-b-2 px-3 py-3 text-sm font-medium transition-colors',
+                    tab === t.key
+                      ? 'border-brand-600 text-brand-700'
+                      : 'border-transparent text-zinc-500 hover:text-zinc-700',
+                  )}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+            <div
+              className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-surface to-transparent sm:hidden"
+              aria-hidden
+            />
           </div>
-          {/* Fade a la derecha: indica que hay más tabs scrolleables en mobile. */}
-          <div
-            className="pointer-events-none absolute inset-y-0 right-0 w-10 rounded-br-[var(--radius-card)] bg-gradient-to-l from-surface to-transparent sm:hidden"
-            aria-hidden
-          />
+          {tabHelp && (
+            <div className="flex shrink-0 items-center border-l border-zinc-100 px-1.5">
+              <PageHelp compact items={tabHelp.items} title={tabHelp.title} />
+            </div>
+          )}
         </div>
       </Card>
 

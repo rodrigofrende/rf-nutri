@@ -91,7 +91,7 @@ Versión: ${APP_VERSION}`,
     </a>
   ) : null
 
-  const hasHeaderContent = Boolean(subtitle || actions || support)
+  const hasHeaderContent = Boolean(subtitle || actions || support || (help && help.length > 0))
 
   return (
     <div className="flex h-full">
@@ -110,6 +110,7 @@ Versión: ${APP_VERSION}`,
           </button>
           <h1 className="truncate text-base font-semibold text-zinc-900">{title}</h1>
           <div className="ml-auto flex shrink-0 items-center gap-1">
+            {help && help.length > 0 && <PageHelp items={help} title={helpTitle} compact />}
             {novedades}
             {support}
           </div>
@@ -131,6 +132,11 @@ Versión: ${APP_VERSION}`,
                 {subtitle && <p className="text-sm text-zinc-500 lg:mt-1">{subtitle}</p>}
               </div>
               <div className="flex flex-wrap items-center justify-end gap-2">
+                {help && help.length > 0 && (
+                  <div className="hidden lg:block">
+                    <PageHelp items={help} title={helpTitle} />
+                  </div>
+                )}
                 {actions}
                 <div className="hidden items-center gap-1 lg:flex">
                   {novedades}
@@ -138,8 +144,6 @@ Versión: ${APP_VERSION}`,
                 </div>
               </div>
             </div>
-
-            {help && help.length > 0 && <PageHelp items={help} title={helpTitle} />}
 
             {children}
           </div>

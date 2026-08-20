@@ -6,8 +6,6 @@ import { Badge, Button, Card, CardBody, CardHeader, EmptyState, Spinner } from '
 import { planDailyAverage } from '@/utils/nutrition'
 import { adminMealPlanDetail, ROUTES } from '@/routes/routePaths'
 import { PLAN_STATUS_LABELS, PLAN_STATUS_TONES } from '@/features/admin/meal-plans/planMeta'
-import { PageHelp } from '@/components/shared/PageHelp'
-import { FICHA_PLAN_HELP } from '@/content/help'
 
 export function MealPlanTab({
   clinicId,
@@ -26,7 +24,6 @@ export function MealPlanTab({
 
   return (
     <div className="space-y-4">
-      <PageHelp items={FICHA_PLAN_HELP} title="Cómo funciona el plan" compact />
       <Card>
         <CardHeader
           title="Plan alimentario"

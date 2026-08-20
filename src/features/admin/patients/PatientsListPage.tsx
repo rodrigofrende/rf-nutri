@@ -16,7 +16,6 @@ import {
   FullPageSpinner,
   IconButton,
   Input,
-  Sensitive,
   Text,
   Table,
   Tooltip,
@@ -102,7 +101,7 @@ export function PatientsListPage() {
           <Avatar name={m.fullName} src={m.photoURL} size="sm" />
           <div>
             <Text variant="listItem">{m.fullName}</Text>
-            <Sensitive className="block text-xs text-zinc-500">{m.email}</Sensitive>
+            <p className="text-xs text-zinc-500">{m.email}</p>
           </div>
         </div>
       ),
@@ -110,7 +109,7 @@ export function PatientsListPage() {
     {
       key: 'phone',
       header: 'Teléfono',
-      render: (m) => (m.phone ? <Sensitive>{m.phone}</Sensitive> : <span className="text-zinc-400">—</span>),
+      render: (m) => (m.phone ? m.phone : <span className="text-zinc-400">—</span>),
     },
     { key: 'goal', header: 'Objetivo', render: (m) => goalLabel(m) },
     {
@@ -215,7 +214,7 @@ export function PatientsListPage() {
                       <Text variant="listItem" className="truncate">
                         {m.fullName}
                       </Text>
-                      <Sensitive className="block truncate text-xs text-zinc-500">{m.email}</Sensitive>
+                      <p className="truncate text-xs text-zinc-500">{m.email}</p>
                       <div className="mt-2 flex flex-wrap items-center gap-2">
                         <Badge tone={STATUS_TONE[m.status]}>{STATUS_LABEL[m.status]}</Badge>
                         {access.needsAttention && <Badge tone={access.tone}>{access.label}</Badge>}

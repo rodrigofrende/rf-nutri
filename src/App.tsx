@@ -4,7 +4,6 @@ import { AuthProvider } from '@/providers/AuthProvider'
 import { TenantProvider } from '@/providers/TenantProvider'
 import { TenantThemeEffect } from '@/providers/TenantThemeEffect'
 import { ToastProvider } from '@/providers/ToastProvider'
-import { PrivacyProvider } from '@/providers/PrivacyProvider'
 import { AppRoutes } from '@/routes/AppRoutes'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { isNonRetryableError } from '@/utils/firestoreErrors'
@@ -30,16 +29,14 @@ const queryClient = new QueryClient({
  */
 function AppTree() {
   return (
-    <PrivacyProvider>
-      <ToastProvider>
-        <AuthProvider>
-          <TenantProvider>
-            <TenantThemeEffect />
-            <AppRoutes />
-          </TenantProvider>
-        </AuthProvider>
-      </ToastProvider>
-    </PrivacyProvider>
+    <ToastProvider>
+      <AuthProvider>
+        <TenantProvider>
+          <TenantThemeEffect />
+          <AppRoutes />
+        </TenantProvider>
+      </AuthProvider>
+    </ToastProvider>
   )
 }
 

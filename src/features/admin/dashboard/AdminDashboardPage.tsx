@@ -16,11 +16,9 @@ import {
 } from 'recharts'
 import { Activity, CalendarDays, ClipboardList, DollarSign, RefreshCw, Users } from 'lucide-react'
 import { useTenant } from '@/providers/TenantProvider'
-import { usePrivacy } from '@/providers/PrivacyProvider'
 import { useClinicDashboard } from '@/hooks/useDashboard'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { Button, Card, CardHeader, FullPageSpinner, Money, StatCard } from '@/components/ui'
-import { cn } from '@/utils/cn'
 import { formatCurrency, formatDate } from '@/utils/format'
 
 const STATUS_COLORS: Record<string, string> = {
@@ -33,7 +31,6 @@ const compactMoney = (v: number) => (v >= 1000 ? `$${Math.round(v / 1000)}k` : `
 export function AdminDashboardPage() {
   const { activeClinicId } = useTenant()
   const clinicId = activeClinicId as string
-  const { blurred } = usePrivacy()
   const { data, isLoading, isFetching, refetch, dataUpdatedAt } = useClinicDashboard(clinicId)
 
   return (
@@ -97,7 +94,6 @@ export function AdminDashboardPage() {
           {/* Gráficos */}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <ChartCard title="Ingresos cobrados" subtitle="Últimos 6 meses" className="lg:col-span-2">
-              <div className={cn('transition-[filter]', blurred && 'select-none blur-sm')}>
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={data.revenueByMonth} margin={{ top: 8, right: 8, left: 8, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" vertical={false} />
@@ -107,7 +103,6 @@ export function AdminDashboardPage() {
                   <Bar dataKey="value" name="Cobrado" fill="var(--color-brand-600)" radius={[6, 6, 0, 0]} maxBarSize={48} />
                 </BarChart>
               </ResponsiveContainer>
-              </div>
             </ChartCard>
 
             <ChartCard title="Pacientes por estado" subtitle="Activos y pausados">
