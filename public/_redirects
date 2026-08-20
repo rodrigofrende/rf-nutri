@@ -1,0 +1,20 @@
+# Redirige el subdominio de fábrica de Netlify al dominio propio (SEO + marca).
+# DEBE ir ANTES del fallback SPA: _redirects es "primer match gana" y la regla
+# /* de abajo matchea cualquier host. El :splat conserva la ruta; 301! fuerza.
+https://rf-nutri.netlify.app/*  https://nutri.rf-platform.com/:splat  301!
+
+# Assets hasheados que YA NO EXISTEN → 404 de verdad, no el index.html.
+#
+# Sin esta regla, el fallback /* de abajo respondía /assets/MiPagina-<hash>.js con
+# 200 y text/html. Una pestaña con un bundle viejo pedía su chunk, recibía HTML
+# con status de éxito, y Safari fallaba con "'text/html' is not a valid JavaScript
+# MIME type": un error rarísimo de diagnosticar, y con un 200 que cualquier capa
+# intermedia puede cachear como si fuera el archivo bueno.
+#
+# SIN "!" A PROPÓSITO: Netlify no puede "shadowear" un archivo que existe, así que
+# una regla no forzada actúa SÓLO cuando el archivo falta y los assets del deploy
+# actual se siguen sirviendo normal. Con "!" el sitio entero devolvería 404.
+/assets/*   /404.html   404
+
+# Fallback SPA: cualquier otra ruta sirve index.html (React Router rutea del lado del cliente).
+/*    /index.html   200

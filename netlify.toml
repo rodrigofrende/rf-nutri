@@ -1,0 +1,6 @@
+# Build de Netlify. OJO: este archivo pisa el comando configurado en la UI.
+# El aviso de deploy va a ntfy al final del build, solo en contexto production
+# (ver scripts/notify-deploy.mjs).
+[build]
+  publish = "dist"
+  command = "pnpm build && node scripts/notify-deploy.mjs"

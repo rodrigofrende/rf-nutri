@@ -1,0 +1,106 @@
+@import 'tailwindcss';
+
+/* Design tokens — un solo lugar para colores de marca, look unificado */
+@theme {
+  /* Verde NUTRI: brand-600 es el color exacto del tag/badge de la app. */
+  --color-brand-50: #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-300: #6ee7b7;
+  --color-brand-400: #34d399;
+  --color-brand-500: #10b981;
+  --color-brand-600: #059669;
+  --color-brand-700: #047857;
+  --color-brand-800: #065f46;
+  --color-brand-900: #064e3b;
+
+  --color-surface: #ffffff;
+  --color-surface-muted: #fafafa;
+  --color-border: #e4e4e7;
+
+  --radius-control: 0.5rem;
+  --radius-card: 0.875rem;
+  --radius-pill: 9999px;
+
+  /*
+   * Tipografía canónica (encapsulada en Heading / Text):
+   * display   → text-2xl font-bold   (full-page / brand)
+   * page      → text-xl font-bold     (AppLayout, entidad)
+   * card      → text-base font-semibold (título de card)
+   * metric    → text-2xl font-bold   (precios, KPIs)
+   * label     → text-sm font-semibold (labels de sección)
+   * body      → text-sm               (texto general)
+   * caption   → text-xs               (hints, metadata)
+   */
+  --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+  /* Display athletic para la landing pública (titulares en mayúsculas, grandes). */
+  --font-display: 'Anton', 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Scroll horizontal sin scrollbar visible (tiras de tabs/chips en mobile). */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  min-height: 100dvh;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-surface-muted);
+  color: var(--color-zinc-900);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Animaciones de la landing pública (sutiles, CSS puro) ─────────────────
+   Entrada escalonada del hero + glow que "respira". Se anulan con
+   prefers-reduced-motion para accesibilidad. */
+@keyframes rf-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes rf-glow {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Aplicar a elementos del hero; escalonar con inline style animation-delay. */
+.rf-fade-up {
+  opacity: 0;
+  animation: rf-fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* El glow del hero late lento (solo opacidad, para no pelear con el translate). */
+.rf-glow {
+  animation: rf-glow 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rf-fade-up {
+    opacity: 1;
+    animation: none;
+  }
+  .rf-glow {
+    animation: none;
+  }
+}

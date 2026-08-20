@@ -1,0 +1,52 @@
+# Security headers (Netlify los aplica a todas las respuestas del sitio).
+# Objetivo principal: anti-clickjacking + hardening de defensa en profundidad.
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Permissions-Policy: geolocation=(), microphone=(), payment=(), camera=(self)
+  Content-Security-Policy: frame-ancestors 'none'
+
+# NOTA — CSP completa (script-src/connect-src/etc.): quedó pendiente a propósito.
+# Una CSP restrictiva es defensa en profundidad valiosa, PERO mal calibrada rompe
+# Firebase (Firestore WebChannel), App Check/reCAPTCHA y el login con Google, y no
+# se puede testear sin deployar. Activar y PROBAR en un deploy de preview antes de
+# producción. Plantilla de arranque (ajustar y verificar en la consola del navegador):
+#
+#   Content-Security-Policy: default-src 'self'; frame-ancestors 'none';
+#     script-src 'self' https://www.gstatic.com https://www.google.com https://apis.google.com;
+#     connect-src 'self' https://*.googleapis.com https://*.google.com https://*.gstatic.com https://*.firebaseio.com wss://*.firebaseio.com;
+#     frame-src https://www.google.com https://*.firebaseapp.com https://accounts.google.com;
+#     img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+#     font-src 'self' https://fonts.gstatic.com; base-uri 'self'; object-src 'none'
+
+# ─── Caché ───────────────────────────────────────────────────────────────────
+# Estos son los mismos valores que ya estaban escritos en vercel.json y en el
+# bloque "hosting" de firebase.json — configs MUERTAS (el sitio lo sirve Netlify,
+# ver netlify.toml). Acá sí aplican.
+#
+# OJO: no meter Cache-Control en el bloque /* de arriba. Netlify no documenta qué
+# regla gana cuando dos setean el MISMO header, así que se evita el solapamiento
+# en vez de apostar a que "la más específica gana".
+
+# Assets hasheados por Vite (/assets/index-<hash>.js): el nombre cambia con el
+# contenido, así que se pueden cachear para siempre. La palabra que importa es
+# `immutable`: sin ella el navegador revalida cada asset en cada visita, y hoy el
+# host responde `public,max-age=0,must-revalidate` para TODO.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# El shell HTML nunca se cachea: es lo que trae los hashes nuevos, y es de lo que
+# depende la recarga de recuperación de src/utils/staleDeploy.ts.
+#
+# Es a propósito redundante con el default del host (que ya manda
+# `max-age=0, must-revalidate`, funcionalmente equivalente): sirve de seguro ante
+# un cambio de default de plataforma, no arregla nada por sí solo. La pestaña
+# vieja NUNCA fue un problema de caché HTTP — fue una SPA viva en memoria que
+# simplemente nunca recargó.
+/index.html
+  Cache-Control: no-cache
+
+/
+  Cache-Control: no-cache

@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- Íconos. El .ico va PRIMERO y existe como archivo real por dos razones:
+         Google y los navegadores lo piden por convención en /favicon.ico, y sin
+         el archivo el fallback SPA de _redirects respondía index.html (200 +
+         text/html) — o sea que Google pedía el ícono del sitio y recibía HTML.
+         Además la doc de favicons de Google no lista SVG entre los formatos
+         soportados, así que el SVG solo no alcanzaba para el ícono del resultado.
+         Se generan rasterizando favicon.svg (cuadrados, ver 48px+ recomendado). -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32 48x48" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Fonts sin bloquear el primer render: media="print" difiere la aplicación
+         del stylesheet hasta que cargue; display=swap evita texto invisible. -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
+    <title>RF NUTRI — Software de gestión para nutricionistas</title>
+    <meta
+      name="description"
+      content="Pacientes, planes alimentarios con macros, antropometría, turnos y cobros en un solo lugar. App para tus pacientes y página pública para tu consultorio. Hecho en Argentina, precios en pesos."
+    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://nutri.rf-platform.com/" />
+
+    <!-- Open Graph: previews al compartir el link (WhatsApp/Facebook/etc.). URLs absolutas obligatorias. -->
+    <meta property="og:title" content="RF NUTRI — Software de gestión para nutricionistas" />
+    <meta
+      property="og:description"
+      content="Pacientes, planes alimentarios, antropometría y turnos en un solo lugar. Planes en pesos para nutricionistas de Argentina."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:site_name" content="RF NUTRI" />
+    <meta property="og:url" content="https://nutri.rf-platform.com/" />
+    <!-- 1200x630 JPEG (~55 KB). Antes era un PNG de 2400x1260 y 1,27 MB: WhatsApp
+         suele no renderizar previews tan pesadas, o sea que el link se compartía
+         sin tarjeta. Nombre nuevo a propósito, para invalidar el caché de los
+         scrapers. -->
+    <meta property="og:image" content="https://nutri.rf-platform.com/brand/og-image.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="RF NUTRI — Software de gestión para nutricionistas" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="RF NUTRI — Software de gestión para nutricionistas" />
+    <meta
+      name="twitter:description"
+      content="Pacientes, planes alimentarios, antropometría y turnos en un solo lugar. Planes en pesos para nutricionistas de Argentina."
+    />
+    <meta name="twitter:image" content="https://nutri.rf-platform.com/brand/og-image.jpg" />
+
+    <meta name="theme-color" content="#059669" />
+
+    <!-- Structured data. Va en el HTML estático (no en React) a propósito: es lo
+         único que Googlebot lee sin tener que ejecutar el bundle de la SPA.
+         `WebSite.name` es la palanca del NOMBRE DEL SITIO que se ve arriba del
+         resultado — hoy Google muestra "RF Platform", derivado del dominio.
+         `alternateName` es el fallback que Google puede usar si no toma el
+         preferido, así que se declara el que ya viene usando en vez de pelearlo.
+         `Organization.logo` tiene que ser cuadrado y rastreable. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://nutri.rf-platform.com/#organization",
+            "name": "RF NUTRI",
+            "url": "https://nutri.rf-platform.com/",
+            "email": "hola@rf-platform.com",
+            "description": "Software de gestión para nutricionistas: pacientes, planes alimentarios, antropometría, turnos y cobros.",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://nutri.rf-platform.com/icon-512.png",
+              "width": 512,
+              "height": 512
+            }
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://nutri.rf-platform.com/#website",
+            "name": "RF NUTRI",
+            "alternateName": "RF Platform",
+            "url": "https://nutri.rf-platform.com/",
+            "inLanguage": "es-AR",
+            "publisher": { "@id": "https://nutri.rf-platform.com/#organization" }
+          }
+        ]
+      }
+    </script>
+    <style>
+      /* Spinner del shell: visible mientras baja/parsea el bundle (mobile lento).
+         React lo reemplaza al montar. Neutro a propósito: el tema se aplica después. */
+      #root:empty::after {
+        content: '';
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        width: 2rem;
+        height: 2rem;
+        margin: -1rem 0 0 -1rem;
+        border: 3px solid #e4e4e7;
+        border-top-color: #a1a1aa;
+        border-radius: 9999px;
+        /* DOS animaciones: la que gira (infinita) y un "temporizador" de 10s que
+           lo apaga. Sin esto, este spinner gris disfrazaba de "cargando" dos
+           crashes distintos: el bundle que nunca llega (chunk 404, sin red) y el
+           árbol de React desmontado por un error de render. */
+        animation:
+          shell-spin 0.8s linear infinite,
+          shell-hide 0s linear 10s forwards;
+      }
+      @keyframes shell-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes shell-hide {
+        to {
+          opacity: 0;
+          visibility: hidden;
+        }
+      }
+      /* El aviso vive FUERA de #root (adentro haría que `#root:empty` dejara de
+         matchear y el spinner no arrancaría nunca) y se revela con el mismo
+         temporizador. Combinador `~` y no `+`: así no importa si Vite inyecta el
+         <script> del bundle entre los dos (en dev va al body, en el build al
+         head). `position: fixed` porque index.css le da min-height:100dvh a #root
+         y un hermano en flujo quedaría abajo del fold.
+
+         Se auto-cancela solo: si el bundle finalmente llega, #root deja de estar
+         vacío, el selector deja de aplicar y la animación se remueve. Y se
+         re-arma si React descarta el árbol más tarde. */
+      #shell-timeout {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 1.5rem;
+        text-align: center;
+        font-family: system-ui, sans-serif;
+        font-size: 0.875rem;
+        color: #52525b;
+        background: #fafafa;
+        opacity: 0;
+        visibility: hidden;
+      }
+      #root:empty ~ #shell-timeout {
+        animation: shell-show 0s linear 10s forwards;
+      }
+      @keyframes shell-show {
+        to {
+          opacity: 1;
+          visibility: visible;
+        }
+      }
+      #shell-timeout strong {
+        font-size: 1rem;
+        color: #18181b;
+      }
+      #shell-timeout a {
+        margin-top: 0.25rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 0.5rem;
+        background: #059669;
+        color: #fff;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      /* OJO: el revelado depende de `animation`. Si algún día se agrega un reset
+         global de prefers-reduced-motion (`* { animation: none }`), hay que
+         excluir shell-hide/shell-show o el aviso no aparece nunca. Hoy el bloque
+         de src/index.css está scopeado a .rf-fade-up/.rf-glow: no molesta. */
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <!-- Red de seguridad SIN NADA DE JS: si a los 10s no se montó nada, el spinner
+         se apaga y aparece esto. Tiene que ser HTML inline porque el peor caso es
+         justamente que el chunk de entrada 404ee y NINGÚN JS de la app llegue a
+         correr. El link es un <a> y no un botón con onclick: navegación de verdad,
+         sin JS, y compatible con una CSP `script-src 'self'` el día que se active
+         la del comentario de public/_headers. -->
+    <div id="shell-timeout">
+      <strong>Esto está tardando más de lo normal</strong>
+      <span>Revisá tu conexión y volvé a intentar.</span>
+      <a href="/">Reintentar</a>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
