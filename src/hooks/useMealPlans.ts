@@ -30,12 +30,12 @@ export function useMealPlan(clinicId: string, planId: string) {
   })
 }
 
-/** Planes del propio paciente (query filtrada por su uid → provably safe). */
-export function useMyMealPlans(clinicId: string, memberUid: string) {
+/** Planes del propio paciente (query por memberId de la membresía). */
+export function useMyMealPlans(clinicId: string, memberId: string, memberUid: string) {
   return useQuery({
-    queryKey: queryKeys.myMealPlans(clinicId, memberUid),
-    queryFn: () => listPlansForMember(clinicId, memberUid),
-    enabled: !!clinicId && !!memberUid,
+    queryKey: queryKeys.myMealPlans(clinicId, memberId, memberUid),
+    queryFn: () => listPlansForMember(clinicId, { memberId, memberUid }),
+    enabled: !!clinicId && (!!memberId || !!memberUid),
   })
 }
 

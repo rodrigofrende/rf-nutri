@@ -11,6 +11,7 @@ import {
   removeOne,
   updateOne,
 } from './firestore'
+import { mergeOwnedDocs, type PatientOwner } from './memberOwnership'
 import { paths } from './paths'
 
 /**
@@ -31,12 +32,19 @@ export function getMealPlan(clinicId: string, planId: string) {
 }
 
 /**
- * Planes del propio paciente. El where por memberUid hace la query "provably
- * safe" contra las rules (solo lee docs con su uid).
+ * Planes del propio paciente. Consulta por uid (rules actuales) y por memberId
+ * (si el plan se asignó antes de reclamar el acceso).
  */
-export function listPlansForMember(clinicId: string, memberUid: string) {
-  if (env.demoMode) return demo.listPlansForMember(clinicId, memberUid)
-  return getMany<MealPlan>(paths.mealPlans(clinicId), where('memberUid', '==', memberUid))
+export function listPlansForMember(clinicId: string, owner: PatientOwner) {
+  if (env.demoMode) return demo.listPlansForMember(clinicId, owner.memberId)
+  return mergeOwnedDocs([
+    owner.memberUid
+      ? getMany<MealPlan>(paths.mealPlans(clinicId), where('memberUid', '==', owner.memberUid))
+      : null,
+    owner.memberId
+      ? getMany<MealPlan>(paths.mealPlans(clinicId), where('memberId', '==', owner.memberId))
+      : null,
+  ])
 }
 
 export function createMealPlan(clinicId: string, data: Omit<MealPlan, 'id'>) {

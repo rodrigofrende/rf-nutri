@@ -35,11 +35,11 @@ export function useMemberPayments(clinicId: string, memberId: string) {
 }
 
 /** Historial propio del paciente logueado. */
-export function useMyPayments(clinicId: string, memberUid: string) {
+export function useMyPayments(clinicId: string, memberId: string, memberUid: string) {
   return useQuery({
-    queryKey: queryKeys.myPayments(clinicId, memberUid),
-    queryFn: () => listMyPayments(clinicId, memberUid),
-    enabled: !!clinicId && !!memberUid,
+    queryKey: queryKeys.myPayments(clinicId, memberId, memberUid),
+    queryFn: () => listMyPayments(clinicId, { memberId, memberUid }),
+    enabled: !!clinicId && (!!memberId || !!memberUid),
   })
 }
 

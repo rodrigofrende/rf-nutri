@@ -372,8 +372,8 @@ export function listMealPlans(_clinicId: string) {
 export function getMealPlan(_clinicId: string, planId: string) {
   return ok(data.mealPlans.find((p) => p.id === planId) ?? null)
 }
-export function listPlansForMember(_clinicId: string, memberUid: string) {
-  return ok(data.mealPlans.filter((p) => p.memberUid === memberUid))
+export function listPlansForMember(_clinicId: string, memberId: string) {
+  return ok(data.mealPlans.filter((p) => p.memberId === memberId && !p.isTemplate))
 }
 export function createMealPlan(_clinicId: string, payload: Omit<MealPlan, 'id'>) {
   const id = nextId('mp')
@@ -534,8 +534,8 @@ export function listAppointmentsByRange(_clinicId: string, from: Date, to: Date)
     ).map((a) => ({ ...a })),
   )
 }
-export function listAppointmentsForMember(_clinicId: string, memberUid: string) {
-  return ok(byStartAsc(data.appointments.filter((a) => a.memberUid === memberUid)).map((a) => ({ ...a })))
+export function listAppointmentsForMember(_clinicId: string, memberId: string) {
+  return ok(byStartAsc(data.appointments.filter((a) => a.memberId === memberId)).map((a) => ({ ...a })))
 }
 export function listAppointmentsByMemberId(_clinicId: string, memberId: string) {
   return ok(byStartAsc(data.appointments.filter((a) => a.memberId === memberId)).map((a) => ({ ...a })))
@@ -606,8 +606,8 @@ export function listPayments(_clinicId: string) {
 export function listPaymentsForMember(_clinicId: string, memberId: string) {
   return ok(byDateDesc(data.patientPayments.filter((p) => p.memberId === memberId)))
 }
-export function listMyPayments(_clinicId: string, memberUid: string) {
-  return ok(byDateDesc(data.patientPayments.filter((p) => p.memberUid === memberUid)))
+export function listMyPayments(_clinicId: string, memberId: string) {
+  return ok(byDateDesc(data.patientPayments.filter((p) => p.memberId === memberId)))
 }
 export function recordPayment(_clinicId: string, p: NewPatientPaymentInput) {
   const id = nextId('pay')

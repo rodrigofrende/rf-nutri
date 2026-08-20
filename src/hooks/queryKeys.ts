@@ -19,19 +19,19 @@ export const queryKeys = {
   payments: (clinicId: string) => ['payments', clinicId] as const,
   memberPayments: (clinicId: string, memberId: string) =>
     ['payments', clinicId, 'member', memberId] as const,
-  myPayments: (clinicId: string, memberUid: string) =>
-    ['payments', clinicId, 'mine', memberUid] as const,
+  myPayments: (clinicId: string, memberId: string, memberUid: string) =>
+    ['payments', clinicId, 'mine', memberId, memberUid] as const,
   subscriptionPayments: (clinicId: string) => ['subscriptionPayments', clinicId] as const,
   mealPlans: (clinicId: string) => ['mealPlans', clinicId] as const,
   mealPlan: (clinicId: string, planId: string) => ['mealPlan', clinicId, planId] as const,
-  myMealPlans: (clinicId: string, memberUid: string) =>
-    ['mealPlans', clinicId, 'mine', memberUid] as const,
+  myMealPlans: (clinicId: string, memberId: string, memberUid: string) =>
+    ['mealPlans', clinicId, 'mine', memberId, memberUid] as const,
   foods: (clinicId: string) => ['foods', clinicId] as const,
   tariffs: (clinicId: string) => ['tariffs', clinicId] as const,
   appointments: (clinicId: string, fromKey: string, toKey: string) =>
     ['appointments', clinicId, fromKey, toKey] as const,
-  myAppointments: (clinicId: string, memberUid: string) =>
-    ['appointments', clinicId, 'mine', memberUid] as const,
+  myAppointments: (clinicId: string, memberId: string, memberUid: string) =>
+    ['appointments', clinicId, 'mine', memberId, memberUid] as const,
   memberAppointments: (clinicId: string, memberId: string) =>
     ['appointments', clinicId, 'member', memberId] as const,
   stats: (clinicId: string) => ['stats', clinicId] as const,

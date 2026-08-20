@@ -173,7 +173,7 @@ export function CheckInPage() {
 
   if (isLoading) {
     return (
-      <AppLayout title="Check-in semanal">
+      <AppLayout title="Check-in semanal" help={CHECKIN_HELP} helpTitle="Cómo funciona el check-in">
         <FullPageSpinner />
       </AppLayout>
     )

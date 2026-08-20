@@ -4,6 +4,7 @@ import { env } from '@/config/env'
 import * as demo from '@/demo/store'
 import { toDayKey } from '@/utils/dateKeys'
 import { addToCollection, getMany, removeOne, updateOne } from './firestore'
+import { mergeOwnedDocs, type PatientOwner } from './memberOwnership'
 import { paths } from './paths'
 
 /**
@@ -39,14 +40,25 @@ export function listAppointmentsByRange(clinicId: string, from: Date, to: Date) 
   )
 }
 
-/** Turnos del propio paciente (where memberUid → provably safe con las rules). */
-export function listAppointmentsForMember(clinicId: string, memberUid: string) {
-  if (env.demoMode) return demo.listAppointmentsForMember(clinicId, memberUid)
-  return getMany<Appointment>(
-    paths.appointments(clinicId),
-    where('memberUid', '==', memberUid),
-    orderBy('startAt'),
-  )
+/** Turnos del propio paciente: uid (rules actuales) y memberId (asignados antes del acceso). */
+export function listAppointmentsForMember(clinicId: string, owner: PatientOwner) {
+  if (env.demoMode) return demo.listAppointmentsForMember(clinicId, owner.memberId)
+  return mergeOwnedDocs([
+    owner.memberUid
+      ? getMany<Appointment>(
+          paths.appointments(clinicId),
+          where('memberUid', '==', owner.memberUid),
+          orderBy('startAt'),
+        )
+      : null,
+    owner.memberId
+      ? getMany<Appointment>(
+          paths.appointments(clinicId),
+          where('memberId', '==', owner.memberId),
+          orderBy('startAt'),
+        )
+      : null,
+  ])
 }
 
 /** Turnos de un paciente (vista admin de la ficha). */

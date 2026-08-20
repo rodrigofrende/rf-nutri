@@ -2,14 +2,15 @@ import { useMemo, useState } from 'react'
 import { Clock, Flame, NotebookPen, Salad } from 'lucide-react'
 import type { MealPlan, MealPlanItem, MealPlanMeal } from '@/types'
 import { DEFAULT_CLINIC_SETTINGS, type PreferredUnits } from '@/types'
-import { useAuth } from '@/providers/AuthProvider'
 import { useTenant } from '@/providers/TenantProvider'
+import { useAuth } from '@/providers/AuthProvider'
 import { useClinic } from '@/hooks/useClinic'
 import { useMyMealPlans } from '@/hooks/useMealPlans'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { Badge, Card, CardBody, EmptyState, FullPageSpinner, Heading, Text } from '@/components/ui'
 import { cn } from '@/utils/cn'
 import { toDate } from '@/utils/format'
+import { MY_PLAN_HELP } from '@/content/help'
 import {
   MEAL_SLOTS,
   MEAL_SLOT_LABELS,
@@ -59,11 +60,12 @@ function MacroRow({ totals, className }: { totals: MacroTotals; className?: stri
 
 export function MyPlanPage() {
   const { user } = useAuth()
-  const { activeClinicId } = useTenant()
+  const { activeClinicId, activeMembership } = useTenant()
   const clinicId = activeClinicId as string
-  const uid = user?.uid ?? ''
+  const memberId = activeMembership?.memberId ?? ''
+  const memberUid = user?.uid ?? ''
 
-  const { data: plans = [], isLoading } = useMyMealPlans(clinicId, uid)
+  const { data: plans = [], isLoading } = useMyMealPlans(clinicId, memberId, memberUid)
   const { data: clinic } = useClinic(clinicId)
   const settings = clinic?.settings ?? DEFAULT_CLINIC_SETTINGS
 
@@ -81,7 +83,7 @@ export function MyPlanPage() {
 
   if (isLoading) {
     return (
-      <AppLayout title="Mi plan">
+      <AppLayout title="Mi plan" help={MY_PLAN_HELP} helpTitle="Cómo funciona tu plan">
         <FullPageSpinner />
       </AppLayout>
     )
@@ -89,7 +91,7 @@ export function MyPlanPage() {
 
   if (!plan || plan.days.length === 0) {
     return (
-      <AppLayout title="Mi plan">
+      <AppLayout title="Mi plan" help={MY_PLAN_HELP} helpTitle="Cómo funciona tu plan">
         <EmptyState
           icon={Salad}
           title="Todavía no tenés un plan"
@@ -110,7 +112,7 @@ export function MyPlanPage() {
   )
 
   return (
-    <AppLayout title="Mi plan" subtitle={plan.name}>
+    <AppLayout title="Mi plan" subtitle={plan.name} help={MY_PLAN_HELP} helpTitle="Cómo funciona tu plan">
       <div className="mx-auto max-w-2xl space-y-4">
         {/* Encabezado del plan: nombre + kcal objetivo si el consultorio las muestra */}
         <div className="flex flex-wrap items-center gap-2">

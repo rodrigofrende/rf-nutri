@@ -134,7 +134,7 @@ export function DiaryPage() {
 
   if (isLoading) {
     return (
-      <AppLayout title="Mi diario">
+      <AppLayout title="Mi diario" help={DIARY_HELP} helpTitle="Cómo funciona el diario">
         <FullPageSpinner />
       </AppLayout>
     )

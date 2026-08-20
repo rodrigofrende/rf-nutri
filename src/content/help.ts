@@ -12,6 +12,8 @@ export type PageHelpIcon =
   | 'notebook'
   | 'heart'
   | 'check'
+  | 'building'
+  | 'chart'
 
 export type PageHelpChip = {
   label: string
@@ -190,6 +192,77 @@ export const MY_APPOINTMENTS_HELP: PageHelpItem[] = [
     question: 'Confirmar asistencia',
     answer:
       'Si el turno está pendiente, confirmá que vas. Completado o ausente lo marca tu nutri después de la consulta.',
+  },
+]
+
+export const MY_PLAN_HELP: PageHelpItem[] = [
+  {
+    icon: 'utensils',
+    question: 'Qué plan ves',
+    answer:
+      'Solo el plan que tu nutri dejó activo. Si hay más de un día (entrenamiento, descanso), cambiá de día arriba.',
+  },
+  {
+    icon: 'check',
+    question: 'Cantidades y cambios',
+    answer:
+      'Las porciones pueden verse en tazas, gramos o ambos, según el consultorio. Acá no se edita: si algo no cierra, escribilé a tu nutri.',
+  },
+]
+
+export const MY_PROGRESS_HELP: PageHelpItem[] = [
+  {
+    icon: 'chart',
+    question: 'De dónde salen los gráficos',
+    answer:
+      'El peso lo cargás en el diario. Las medidas (cintura, pliegues, etc.) las toma tu nutri. El check-in semanal también suma si lo vas completando.',
+  },
+  {
+    icon: 'ruler',
+    question: 'Qué no aparece',
+    answer: 'Las notas clínicas y lo privado del consultorio no se ven acá. Esto es tu evolución, no la ficha completa.',
+  },
+]
+
+export const MY_PAYMENTS_HELP: PageHelpItem[] = [
+  {
+    icon: 'wallet',
+    question: 'Qué se lista',
+    answer:
+      'Pagos que el consultorio ya registró. Un turno hecho no aparece acá hasta que ellos carguen el cobro.',
+  },
+  {
+    icon: 'calendar',
+    question: 'Total del año',
+    answer: 'Es la suma de lo abonado en el año en curso, no un resumen de deudas.',
+  },
+]
+
+export const MY_PROFILE_HELP: PageHelpItem[] = [
+  {
+    icon: 'user',
+    question: 'Qué podés editar',
+    answer:
+      'Nombre, teléfono y fecha de nacimiento. El email de acceso lo gestiona el consultorio.',
+  },
+  {
+    icon: 'check',
+    question: 'Contraseña',
+    answer:
+      'Se cambia estando logueado. Si la olvidaste del todo, pedile al consultorio que te reenvíe el acceso.',
+  },
+]
+
+export const MY_CONTACT_HELP: PageHelpItem[] = [
+  {
+    icon: 'building',
+    question: 'Qué hay acá',
+    answer: 'Presentación del consultorio: dirección, horarios y cómo escribirles (WhatsApp, email, redes).',
+  },
+  {
+    icon: 'heart',
+    question: 'Si está vacío',
+    answer: 'Todavía no cargaron esa info. Usá el canal con el que ya te hablan hasta que aparezca.',
   },
 ]
 

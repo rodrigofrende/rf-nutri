@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 import { CalendarDays, CheckCircle2, Clock } from 'lucide-react'
 import type { Appointment, AppointmentStatus, AppointmentType } from '@/types'
-import { useAuth } from '@/providers/AuthProvider'
 import { useTenant } from '@/providers/TenantProvider'
+import { useAuth } from '@/providers/AuthProvider'
 import { useConfirmMyAppointment, useMyAppointments } from '@/hooks/useAppointments'
 import { useToastAction } from '@/hooks/useToastAction'
 import { AppLayout } from '@/components/layout/AppLayout'
@@ -37,12 +37,13 @@ function timeLabel(date: Date): string {
 
 export function MyAppointmentsPage() {
   const { user } = useAuth()
-  const { activeClinicId } = useTenant()
+  const { activeClinicId, activeMembership } = useTenant()
   const clinicId = activeClinicId as string
-  const uid = user?.uid ?? ''
+  const memberId = activeMembership?.memberId ?? ''
+  const memberUid = user?.uid ?? ''
   const run = useToastAction()
 
-  const { data: appointments = [], isLoading } = useMyAppointments(clinicId, uid)
+  const { data: appointments = [], isLoading } = useMyAppointments(clinicId, memberId, memberUid)
   const confirm = useConfirmMyAppointment(clinicId)
 
   // Próximos: desde el inicio de HOY (un turno de esta tarde sigue siendo próximo)
@@ -71,7 +72,7 @@ export function MyAppointmentsPage() {
 
   if (isLoading) {
     return (
-      <AppLayout title="Mis turnos">
+      <AppLayout title="Mis turnos" help={MY_APPOINTMENTS_HELP} helpTitle="Cómo funcionan tus turnos">
         <FullPageSpinner />
       </AppLayout>
     )
@@ -79,7 +80,7 @@ export function MyAppointmentsPage() {
 
   if (appointments.length === 0) {
     return (
-      <AppLayout title="Mis turnos">
+      <AppLayout title="Mis turnos" help={MY_APPOINTMENTS_HELP} helpTitle="Cómo funcionan tus turnos">
         <EmptyState
           icon={CalendarDays}
           title="Todavía no tenés turnos"

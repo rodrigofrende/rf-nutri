@@ -30,6 +30,7 @@ import { InfoGrid } from '@/components/shared/InfoGrid'
 import { toDateInput } from '@/utils/format'
 import { STATUS_LABEL } from '@/utils/roles'
 import { ROUTES } from '@/routes/routePaths'
+import { MY_PROFILE_HELP } from '@/content/help'
 
 const schema = z.object({
   fullName: z.string().min(2, 'Ingresá tu nombre'),
@@ -70,7 +71,7 @@ export function ProfilePage() {
 
   if (isLoading) {
     return (
-      <AppLayout title="Mi perfil">
+      <AppLayout title="Mi perfil" help={MY_PROFILE_HELP} helpTitle="Cómo funciona tu perfil">
         <FullPageSpinner />
       </AppLayout>
     )
@@ -97,7 +98,7 @@ export function ProfilePage() {
   }
 
   return (
-    <AppLayout title="Mi perfil">
+    <AppLayout title="Mi perfil" help={MY_PROFILE_HELP} helpTitle="Cómo funciona tu perfil">
       <div className="mx-auto max-w-5xl">
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 lg:items-start">
           <div className="space-y-5 lg:col-span-1">
@@ -118,7 +119,11 @@ export function ProfilePage() {
                       items={[
                         {
                           label: 'Estado',
-                          value: <Badge tone="neutral">{STATUS_LABEL[member.status]}</Badge>,
+                          value: (
+                            <Badge tone={member.status === 'active' ? 'green' : 'amber'}>
+                              {STATUS_LABEL[member.status]}
+                            </Badge>
+                          ),
                         },
                       ]}
                     />

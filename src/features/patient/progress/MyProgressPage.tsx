@@ -24,6 +24,7 @@ import { Card, CardBody, CardHeader, EmptyState, FullPageSpinner, Select, StatCa
 import { ageAt, bmi, bmiCategory, BMI_CATEGORY_LABELS, deriveAnthropometry } from '@/utils/anthropometry'
 import { toDayKey } from '@/utils/dateKeys'
 import { toDate } from '@/utils/format'
+import { MY_PROGRESS_HELP } from '@/content/help'
 
 /** 'YYYY-MM-DD' → 'd/M' para ejes compactos. */
 function shortDay(dayKey: string): string {
@@ -168,7 +169,7 @@ export function MyProgressPage() {
 
   if (loadingMember || loadingWeights || loadingAnthro) {
     return (
-      <AppLayout title="Mi progreso">
+      <AppLayout title="Mi progreso" help={MY_PROGRESS_HELP} helpTitle="Cómo funciona tu evolución">
         <FullPageSpinner />
       </AppLayout>
     )
@@ -177,7 +178,7 @@ export function MyProgressPage() {
   const hasAnything = weightPoints.length > 0 || bodyFatData.length > 0 || checkInData.length > 0
 
   return (
-    <AppLayout title="Mi progreso" subtitle="Tu evolución, medida y a la vista.">
+    <AppLayout title="Mi progreso" subtitle="Tu evolución, medida y a la vista." help={MY_PROGRESS_HELP} helpTitle="Cómo funciona tu evolución">
       {!hasAnything ? (
         <EmptyState
           icon={LineChartIcon}

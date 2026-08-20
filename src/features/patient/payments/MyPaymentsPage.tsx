@@ -1,20 +1,22 @@
 import { useMemo } from 'react'
 import { Receipt, Wallet } from 'lucide-react'
-import { useAuth } from '@/providers/AuthProvider'
 import { useTenant } from '@/providers/TenantProvider'
+import { useAuth } from '@/providers/AuthProvider'
 import { useMyPayments } from '@/hooks/usePayments'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { Card, EmptyState, FullPageSpinner, Money, StatCard } from '@/components/ui'
 import { formatDate, toDate } from '@/utils/format'
 import { tariffKindLabel } from '@/utils/tariffs'
+import { MY_PAYMENTS_HELP } from '@/content/help'
 
 export function MyPaymentsPage() {
   const { user } = useAuth()
-  const { activeClinicId } = useTenant()
+  const { activeClinicId, activeMembership } = useTenant()
   const clinicId = activeClinicId as string
-  const uid = user?.uid ?? ''
+  const memberId = activeMembership?.memberId ?? ''
+  const memberUid = user?.uid ?? ''
 
-  const { data: payments = [], isLoading } = useMyPayments(clinicId, uid)
+  const { data: payments = [], isLoading } = useMyPayments(clinicId, memberId, memberUid)
 
   // Total del año en curso: el resumen que el paciente quiere ver de un vistazo.
   const currentYear = new Date().getFullYear()
@@ -29,14 +31,19 @@ export function MyPaymentsPage() {
 
   if (isLoading) {
     return (
-      <AppLayout title="Mis pagos">
+      <AppLayout title="Mis pagos" help={MY_PAYMENTS_HELP} helpTitle="Cómo funcionan tus pagos">
         <FullPageSpinner />
       </AppLayout>
     )
   }
 
   return (
-    <AppLayout title="Mis pagos" subtitle="Lo que abonaste en tu consultorio.">
+    <AppLayout
+      title="Mis pagos"
+      subtitle="Lo que abonaste en tu consultorio."
+      help={MY_PAYMENTS_HELP}
+      helpTitle="Cómo funcionan tus pagos"
+    >
       <div className="mx-auto max-w-2xl space-y-4">
         {payments.length === 0 ? (
           <EmptyState

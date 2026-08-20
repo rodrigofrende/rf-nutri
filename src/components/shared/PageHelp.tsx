@@ -2,11 +2,13 @@ import { useEffect, useId, useRef, useState } from 'react'
 import {
   Activity,
   Apple,
+  Building2,
   CalendarCheck,
   Check,
   CircleHelp,
   Copy,
   Heart,
+  LineChart,
   NotebookPen,
   Ruler,
   Tags,
@@ -34,6 +36,8 @@ const ICONS: Record<PageHelpIcon, LucideIcon> = {
   notebook: NotebookPen,
   heart: Heart,
   check: Check,
+  building: Building2,
+  chart: LineChart,
 }
 
 export function PageHelp({

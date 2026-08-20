@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { WeightLog } from '@/types'
 import { Button, FormField, Input, Modal } from '@/components/ui'
+import { formatDecimalEs, formatDecimalInput, parseDecimalEs } from '@/utils/format'
 
 const NOTE_MAX = 200
 
@@ -21,14 +22,13 @@ export function WeightEntryModal({
   onSave: (data: { weightKg: number; note?: string }) => void
   saving: boolean
 }) {
-  const [value, setValue] = useState(existing ? String(existing.weightKg) : '')
+  const [value, setValue] = useState(existing ? formatDecimalEs(existing.weightKg) : '')
   const [note, setNote] = useState(existing?.note ?? '')
   const [error, setError] = useState('')
 
   const submit = () => {
-    // Aceptamos coma o punto: el teclado numérico es-AR suele ofrecer coma.
-    const parsed = Number(value.replace(',', '.'))
-    if (!value || Number.isNaN(parsed) || parsed <= 0) {
+    const parsed = parseDecimalEs(value)
+    if (parsed == null || parsed <= 0) {
       setError('Ingresá tu peso en kg (ej. 72,5)')
       return
     }
@@ -60,19 +60,17 @@ export function WeightEntryModal({
         {/* El Input es hijo directo del FormField para que el label quede asociado */}
         <FormField label="Peso (kg)" error={error} required>
           <Input
-            type="number"
+            type="text"
             inputMode="decimal"
-            step="0.1"
-            min="20"
-            max="400"
+            lang="es-AR"
+            autoComplete="off"
             placeholder="72,5"
             value={value}
             invalid={!!error}
             onChange={(e) => {
-              setValue(e.target.value)
+              setValue(formatDecimalInput(e.target.value))
               setError('')
             }}
-            // El número es lo único que importa: grande y protagonista
             className="h-14 text-center text-2xl font-bold sm:h-14 sm:text-2xl"
             autoFocus
           />

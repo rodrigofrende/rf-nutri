@@ -24,11 +24,11 @@ export function useAppointments(clinicId: string, from: Date, to: Date) {
 }
 
 /** Turnos del propio paciente. */
-export function useMyAppointments(clinicId: string, memberUid: string) {
+export function useMyAppointments(clinicId: string, memberId: string, memberUid: string) {
   return useQuery({
-    queryKey: queryKeys.myAppointments(clinicId, memberUid),
-    queryFn: () => listAppointmentsForMember(clinicId, memberUid),
-    enabled: !!clinicId && !!memberUid,
+    queryKey: queryKeys.myAppointments(clinicId, memberId, memberUid),
+    queryFn: () => listAppointmentsForMember(clinicId, { memberId, memberUid }),
+    enabled: !!clinicId && (!!memberId || !!memberUid),
   })
 }
 

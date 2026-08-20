@@ -36,6 +36,7 @@ import { ROUTES } from '@/routes/routePaths'
 import { cn } from '@/utils/cn'
 import { env } from '@/config/env'
 import { syncMemberLoginIndex } from '@/services/memberLoginService'
+import { syncMemberUidOnAssignedRecords } from '@/services/memberOwnership'
 import { PatientFormModal } from './PatientFormModal'
 import { FichaTab } from './tabs/FichaTab'
 import { AnthropometryTab } from './tabs/AnthropometryTab'
@@ -120,6 +121,11 @@ export function PatientDetailPage() {
     if (member.authStatus !== 'pending_password' && member.authStatus !== 'password_change_required') return
     void syncMemberLoginIndex(clinicId, member.id, member).catch(() => undefined)
   }, [clinicId, member])
+
+  useEffect(() => {
+    if (env.demoMode || !member?.uid) return
+    void syncMemberUidOnAssignedRecords(clinicId, member.id, member.uid).catch(() => undefined)
+  }, [clinicId, member?.id, member?.uid])
 
   if (isLoading) {
     return (

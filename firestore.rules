@@ -50,6 +50,17 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/clinics/$(clinicId)/members/$(memberId)).data.uid == request.auth.uid;
     }
 
+    // Plan / turno / cobro asignado a ESTE paciente. El memberId del doc tiene
+    // que coincidir con el índice de membresía (no con Auth uid: el member se
+    // crea con auto-id y el uid llega después, cuando reclama el acceso).
+    function assignedToSignedInMember(clinicId) {
+      return isClinicMember(clinicId)
+        && 'memberId' in resource.data
+        && resource.data.memberId is string
+        && resource.data.memberId.size() > 0
+        && resource.data.memberId == userClinicMembership(clinicId).data.memberId;
+    }
+
     /**
      * Email vetado por el super-admin (ver match /blockedEmails).
      *
@@ -406,12 +417,12 @@ service cloud.firestore {
         allow write: if isClinicAdmin(clinicId);
       }
 
-      // Planes alimentarios. Más restrictivo que la lectura de tenant: el paciente
-      // solo lee los docs con su propio memberUid (los templates llevan '' y los
-      // planes de otros pacientes otro uid → invisibles). El list del paciente
-      // debe filtrar where('memberUid','==',uid) para ser provably safe.
+      // Planes alimentarios. El paciente solo ve los asignados a su member
+      // (templates llevan memberId '' → invisibles). El list filtra
+      // where('memberId','==', membership.memberId).
       match /mealPlans/{planId} {
         allow read: if isClinicAdmin(clinicId)
+          || assignedToSignedInMember(clinicId)
           || (isSignedIn() && resource.data.memberUid == request.auth.uid);
         allow write: if isClinicAdmin(clinicId);
       }
@@ -435,12 +446,12 @@ service cloud.firestore {
             && (!('notes' in d) || (d.notes is string && d.notes.size() <= 1000));
         }
         function isConfirmingOwnAppointment() {
-          return isSignedIn()
-            && resource.data.memberUid == request.auth.uid
+          return assignedToSignedInMember(clinicId)
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
             && request.resource.data.status == 'confirmed';
         }
         allow read: if isClinicAdmin(clinicId)
+          || assignedToSignedInMember(clinicId)
           || (isSignedIn() && resource.data.memberUid == request.auth.uid);
         allow create: if isClinicAdmin(clinicId) && validAppointment();
         allow update: if (isClinicAdmin(clinicId) && validAppointment())
@@ -449,7 +460,7 @@ service cloud.firestore {
       }
 
       // Cobros a pacientes (servicios realizados). Escribe SOLO el admin; el
-      // paciente lee los propios (list con where memberUid == uid, provably safe).
+      // paciente lee los propios (list con where memberId == membership.memberId).
       match /payments/{paymentId} {
         function validPatientPayment() {
           let d = request.resource.data;
@@ -465,6 +476,7 @@ service cloud.firestore {
             && (!('comment' in d) || (d.comment is string && d.comment.size() <= 500));
         }
         allow read: if isClinicAdmin(clinicId)
+          || assignedToSignedInMember(clinicId)
           || (isSignedIn() && resource.data.memberUid == request.auth.uid);
         allow create, update: if isClinicAdmin(clinicId) && validPatientPayment();
         allow delete: if isClinicAdmin(clinicId);

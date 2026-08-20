@@ -7,6 +7,7 @@ import { paymentSchema } from '@/validation/schemas'
 import { addMonths } from '@/utils/payments'
 import { toDate } from '@/utils/format'
 import { createBatch, getMany, removeOne } from './firestore'
+import { mergeOwnedDocs, type PatientOwner } from './memberOwnership'
 import { paths } from './paths'
 
 /**
@@ -74,18 +75,28 @@ export function listPaymentsForMember(clinicId: string, memberId: string) {
 }
 
 /**
- * Historial propio del paciente. El filtro por memberUid es lo que hace la query
- * "provably safe" contra las rules (solo puede listar sus propios cobros).
- * Requiere índice (memberUid, date desc).
+ * Historial propio del paciente: uid (rules actuales) y memberId (cobros previos al acceso).
  */
-export function listMyPayments(clinicId: string, memberUid: string) {
-  if (env.demoMode) return demo.listMyPayments(clinicId, memberUid)
-  return getMany<PatientPayment>(
-    paths.payments(clinicId),
-    where('memberUid', '==', memberUid),
-    orderBy('date', 'desc'),
-    limit(PAYMENTS_LIST_LIMIT),
-  )
+export function listMyPayments(clinicId: string, owner: PatientOwner) {
+  if (env.demoMode) return demo.listMyPayments(clinicId, owner.memberId)
+  return mergeOwnedDocs([
+    owner.memberUid
+      ? getMany<PatientPayment>(
+          paths.payments(clinicId),
+          where('memberUid', '==', owner.memberUid),
+          orderBy('date', 'desc'),
+          limit(PAYMENTS_LIST_LIMIT),
+        )
+      : null,
+    owner.memberId
+      ? getMany<PatientPayment>(
+          paths.payments(clinicId),
+          where('memberId', '==', owner.memberId),
+          orderBy('date', 'desc'),
+          limit(PAYMENTS_LIST_LIMIT),
+        )
+      : null,
+  ])
 }
 
 /** Registra el cobro de un servicio a un paciente. */

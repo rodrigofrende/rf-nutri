@@ -43,6 +43,41 @@ export function parseMoney(value: string): number {
   return digits ? parseInt(digits, 10) : 0
 }
 
+/** Número es-AR: miles con `.`, decimales con `,` (86.7 → "86,7"). */
+export function formatDecimalEs(n: number, maxFractionDigits = 1): string {
+  if (!Number.isFinite(n)) return ''
+  return n.toLocaleString('es-AR', {
+    maximumFractionDigits: maxFractionDigits,
+    minimumFractionDigits: 0,
+  })
+}
+
+/**
+ * Máscara mientras se tipea: dígitos, coma decimal y `.` de miles.
+ * Un punto suelto se toma como decimal (teclado que no ofrece coma).
+ */
+export function formatDecimalInput(raw: string, maxFractionDigits = 1): string {
+  let s = raw.replace(/[^\d.,]/g, '')
+  if (!s.includes(',') && s.includes('.')) {
+    const i = s.indexOf('.')
+    s = `${s.slice(0, i)},${s.slice(i + 1).replace(/\./g, '')}`
+  }
+  const comma = s.indexOf(',')
+  const hasDecimal = comma >= 0
+  const intDigits = (hasDecimal ? s.slice(0, comma) : s).replace(/\D/g, '')
+  const frac = hasDecimal ? s.slice(comma + 1).replace(/\D/g, '').slice(0, maxFractionDigits) : ''
+  const intFmt = intDigits ? formatThousands(Number(intDigits)) : ''
+  return hasDecimal ? `${intFmt},${frac}` : intFmt
+}
+
+/** Parsea un número es-AR ("1.234,5" / "86,7") a `number`. */
+export function parseDecimalEs(value: string): number | null {
+  const t = value.trim()
+  if (!t) return null
+  const n = Number(t.replace(/\./g, '').replace(',', '.'))
+  return Number.isFinite(n) ? n : null
+}
+
 export function initials(name: string): string {
   return name
     .trim()

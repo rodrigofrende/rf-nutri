@@ -91,7 +91,7 @@ const USER_NAV: NavGroup[] = [
     key: 'consultorio',
     label: 'Consultorio',
     items: [
-      { to: ROUTES.APP_MY_CLINIC, label: 'Mi consultorio', icon: Building2 },
+      { to: ROUTES.APP_MY_CLINIC, label: 'Contacto', icon: Building2 },
       { to: ROUTES.APP_PROFILE, label: 'Mi perfil', icon: User },
     ],
   },
