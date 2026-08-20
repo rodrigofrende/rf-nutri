@@ -16,6 +16,7 @@ import { formatCurrency } from '@/utils/format'
 import { tariffKindLabel } from '@/utils/tariffs'
 import { tariffIconMeta } from '@/utils/tariffIcons'
 import { TariffFormModal } from './TariffFormModal'
+import { TARIFFS_HELP } from '@/content/help'
 
 export function TariffsListPage() {
   const { activeClinicId } = useTenant()
@@ -64,6 +65,8 @@ export function TariffsListPage() {
     <AppLayout
       title="Tarifas"
       subtitle="Planes y precios que ofrece tu consultorio."
+      help={TARIFFS_HELP}
+      helpTitle="Cómo funcionan las tarifas"
       actions={
         <Button leftIcon={<Plus className="size-4" />} onClick={openNew}>
           Nueva tarifa

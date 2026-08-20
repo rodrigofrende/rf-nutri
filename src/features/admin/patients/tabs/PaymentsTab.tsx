@@ -7,6 +7,8 @@ import { useToastAction } from '@/hooks/useToastAction'
 import { Badge, Button, Card, CardBody, CardHeader, ConfirmDialog, EmptyState, Money, Spinner } from '@/components/ui'
 import { PaymentHistoryList } from '@/features/payments/PaymentHistoryList'
 import { RecordPaymentModal } from '@/features/admin/payments/RecordPaymentModal'
+import { PageHelp } from '@/components/shared/PageHelp'
+import { FICHA_PAYMENTS_HELP } from '@/content/help'
 import { tariffKindLabel } from '@/utils/tariffs'
 import { toDate } from '@/utils/format'
 
@@ -53,6 +55,7 @@ export function PaymentsTab({
 
   return (
     <div className="space-y-4">
+      <PageHelp items={FICHA_PAYMENTS_HELP} title="Cómo funcionan los cobros" compact />
       <Card>
         <CardHeader
           title="Cobros"

@@ -9,6 +9,7 @@ import { Badge, Button, Card, CardBody, EmptyState, FullPageSpinner, Heading, Te
 import { cn } from '@/utils/cn'
 import { currentWeekKey } from '@/utils/dateKeys'
 import { formatDate } from '@/utils/format'
+import { CHECKIN_HELP } from '@/content/help'
 
 const COMMENT_MAX = 1000
 
@@ -179,7 +180,12 @@ export function CheckInPage() {
   }
 
   return (
-    <AppLayout title="Check-in semanal" subtitle="Un minuto por semana para contarle a tu nutri cómo venís.">
+    <AppLayout
+      title="Check-in semanal"
+      subtitle="Un minuto por semana para contarle a tu nutri cómo venís."
+      help={CHECKIN_HELP}
+      helpTitle="Cómo funciona el check-in"
+    >
       <div className="mx-auto max-w-2xl space-y-5">
         <Card>
           <div className="flex flex-wrap items-center gap-2 border-b border-zinc-100 px-4 py-3 sm:px-5">

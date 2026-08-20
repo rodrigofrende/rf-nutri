@@ -34,14 +34,22 @@ import {
   EmptyState,
   FullPageSpinner,
   Heading,
+  Spinner,
   Text,
+  BusyOverlay,
 } from '@/components/ui'
 import { cn } from '@/utils/cn'
 import { planDailyAverage } from '@/utils/nutrition'
 import { adminMealPlanDetail, ROUTES } from '@/routes/routePaths'
 import { PLAN_STATUS_LABELS, PLAN_STATUS_TONES } from './planMeta'
+import { MEAL_PLANS_HELP } from '@/content/help'
 
-/** Orden de las secciones de planes: primero lo que está en uso. */
+type PlanBusyAction = 'duplicate' | 'template'
+
+const BUSY_LABEL: Record<PlanBusyAction, string> = {
+  duplicate: 'Duplicando…',
+  template: 'Guardando plantilla…',
+}
 const STATUS_SECTIONS: { status: MealPlanStatus; title: string }[] = [
   { status: 'active', title: 'Activos' },
   { status: 'draft', title: 'Borradores' },
@@ -63,6 +71,7 @@ export function MealPlansListPage() {
 
   const [tab, setTab] = useState<'plans' | 'templates'>('plans')
   const [toDelete, setToDelete] = useState<MealPlan | null>(null)
+  const [busy, setBusy] = useState<{ id: string; action: PlanBusyAction } | null>(null)
 
   // Nombre del paciente resuelto por memberId (el plan solo guarda el id)
   const memberNames = useMemo(() => {
@@ -74,18 +83,30 @@ export function MealPlansListPage() {
   const planList = useMemo(() => plans.filter((p) => !p.isTemplate), [plans])
   const templates = useMemo(() => plans.filter((p) => p.isTemplate), [plans])
 
-  const handleDuplicate = (plan: MealPlan) => {
-    void run(() => duplicate.mutateAsync({ plan }), {
-      success: `Se creó "${plan.name} (copia)" como borrador`,
-      error: 'No se pudo duplicar el plan',
-    })
+  const handleDuplicate = async (plan: MealPlan) => {
+    if (busy) return
+    setBusy({ id: plan.id, action: 'duplicate' })
+    try {
+      await run(() => duplicate.mutateAsync({ plan }), {
+        success: `Se creó "${plan.name} (copia)" como borrador`,
+        error: 'No se pudo duplicar el plan',
+      })
+    } finally {
+      setBusy(null)
+    }
   }
 
-  const handleSaveTemplate = (plan: MealPlan) => {
-    void run(() => saveTemplate.mutateAsync({ plan }), {
-      success: 'Guardado como plantilla reutilizable',
-      error: 'No se pudo guardar la plantilla',
-    })
+  const handleSaveTemplate = async (plan: MealPlan) => {
+    if (busy) return
+    setBusy({ id: plan.id, action: 'template' })
+    try {
+      await run(() => saveTemplate.mutateAsync({ plan }), {
+        success: 'Guardado como plantilla reutilizable',
+        error: 'No se pudo guardar la plantilla',
+      })
+    } finally {
+      setBusy(null)
+    }
   }
 
   const confirmDelete = async () => {
@@ -103,8 +124,10 @@ export function MealPlansListPage() {
       plan={plan}
       patientName={plan.memberId ? memberNames.get(plan.memberId) : undefined}
       showCalories={settings.showCalories}
-      onDuplicate={() => handleDuplicate(plan)}
-      onSaveTemplate={plan.isTemplate ? undefined : () => handleSaveTemplate(plan)}
+      busyAction={busy?.id === plan.id ? busy.action : null}
+      actionsDisabled={!!busy}
+      onDuplicate={() => void handleDuplicate(plan)}
+      onSaveTemplate={plan.isTemplate ? undefined : () => void handleSaveTemplate(plan)}
       onDelete={() => setToDelete(plan)}
     />
   )
@@ -113,8 +136,14 @@ export function MealPlansListPage() {
     <AppLayout
       title="Planes alimentarios"
       subtitle="Armá, asigná y reutilizá los planes de tus pacientes."
+      help={MEAL_PLANS_HELP}
+      helpTitle="Cómo funcionan los planes"
       actions={
-        <Button leftIcon={<Plus className="size-4" />} onClick={() => navigate(ROUTES.ADMIN_MEAL_PLAN_NEW)}>
+        <Button
+          leftIcon={<Plus className="size-4" />}
+          disabled={!!busy}
+          onClick={() => navigate(ROUTES.ADMIN_MEAL_PLAN_NEW)}
+        >
           Nuevo plan
         </Button>
       }
@@ -125,10 +154,10 @@ export function MealPlansListPage() {
         role="tablist"
         aria-label="Tipo de plan"
       >
-        <SegmentButton active={tab === 'plans'} onClick={() => setTab('plans')}>
+        <SegmentButton active={tab === 'plans'} disabled={!!busy} onClick={() => setTab('plans')}>
           Planes ({planList.length})
         </SegmentButton>
-        <SegmentButton active={tab === 'templates'} onClick={() => setTab('templates')}>
+        <SegmentButton active={tab === 'templates'} disabled={!!busy} onClick={() => setTab('templates')}>
           Plantillas ({templates.length})
         </SegmentButton>
       </div>
@@ -142,7 +171,11 @@ export function MealPlansListPage() {
             title="Sin planes"
             description="Creá el primer plan alimentario y asignáselo a un paciente cuando esté listo."
             action={
-              <Button leftIcon={<Plus className="size-4" />} onClick={() => navigate(ROUTES.ADMIN_MEAL_PLAN_NEW)}>
+              <Button
+                leftIcon={<Plus className="size-4" />}
+                disabled={!!busy}
+                onClick={() => navigate(ROUTES.ADMIN_MEAL_PLAN_NEW)}
+              >
                 Nuevo plan
               </Button>
             }
@@ -191,10 +224,12 @@ export function MealPlansListPage() {
 
 function SegmentButton({
   active,
+  disabled,
   onClick,
   children,
 }: {
   active: boolean
+  disabled?: boolean
   onClick: () => void
   children: ReactNode
 }) {
@@ -203,11 +238,13 @@ function SegmentButton({
       type="button"
       role="tab"
       aria-selected={active}
+      disabled={disabled}
       onClick={onClick}
       className={cn(
         'rounded-[calc(var(--radius-control)-2px)] px-4 py-1.5 text-sm font-medium transition-colors',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
         active ? 'bg-brand-600 text-white shadow-sm' : 'text-zinc-600 hover:bg-zinc-50',
+        disabled && 'cursor-not-allowed opacity-50',
       )}
     >
       {children}
@@ -219,6 +256,8 @@ function PlanCard({
   plan,
   patientName,
   showCalories,
+  busyAction,
+  actionsDisabled,
   onDuplicate,
   onSaveTemplate,
   onDelete,
@@ -226,19 +265,27 @@ function PlanCard({
   plan: MealPlan
   patientName?: string
   showCalories: boolean
+  busyAction: PlanBusyAction | null
+  actionsDisabled: boolean
   onDuplicate: () => void
   onSaveTemplate?: () => void
   onDelete: () => void
 }) {
   const avg = planDailyAverage(plan)
   const daysLabel = plan.days.length === 1 ? '1 día' : `${plan.days.length} días`
+  const busy = !!busyAction
 
   return (
-    <Card className="flex flex-col p-5">
+    <Card className="relative flex flex-col p-5" aria-busy={busy}>
+      {busyAction && <BusyOverlay label={BUSY_LABEL[busyAction]} />}
+
       <div className="flex items-start justify-between gap-2">
         <Link
           to={adminMealPlanDetail(plan.id)}
-          className="min-w-0 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className={cn(
+            'min-w-0 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
+            busy && 'pointer-events-none',
+          )}
         >
           <Heading variant="card" className="truncate hover:text-brand-700">
             {plan.name || 'Plan sin nombre'}
@@ -246,6 +293,8 @@ function PlanCard({
         </Link>
         <PlanActionsMenu
           plan={plan}
+          busyAction={busyAction}
+          disabled={actionsDisabled}
           onDuplicate={onDuplicate}
           onSaveTemplate={onSaveTemplate}
           onDelete={onDelete}
@@ -295,25 +344,31 @@ function PlanCard({
  */
 function PlanActionsMenu({
   plan,
+  busyAction,
+  disabled,
   onDuplicate,
   onSaveTemplate,
   onDelete,
 }: {
   plan: MealPlan
+  busyAction: PlanBusyAction | null
+  disabled: boolean
   onDuplicate: () => void
   onSaveTemplate?: () => void
   onDelete: () => void
 }) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
+  const busy = !!busyAction
 
   useEffect(() => {
     if (!open) return
     const onPointerDown = (e: PointerEvent) => {
+      if (busy) return
       if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false)
     }
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false)
+      if (e.key === 'Escape' && !busy) setOpen(false)
     }
     document.addEventListener('pointerdown', onPointerDown)
     window.addEventListener('keydown', onKey)
@@ -321,12 +376,17 @@ function PlanActionsMenu({
       document.removeEventListener('pointerdown', onPointerDown)
       window.removeEventListener('keydown', onKey)
     }
-  }, [open])
+  }, [open, busy])
+
+  useEffect(() => {
+    if (busy) setOpen(false)
+  }, [busy])
 
   const itemClass =
-    'flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-50 focus-visible:bg-zinc-50 focus-visible:outline-none'
+    'flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-50 focus-visible:bg-zinc-50 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent'
 
-  const act = (fn: () => void) => () => {
+  const closeThen = (fn: () => void) => () => {
+    if (disabled) return
     setOpen(false)
     fn()
   }
@@ -338,8 +398,12 @@ function PlanActionsMenu({
         aria-label={`Acciones de ${plan.name || 'plan sin nombre'}`}
         aria-haspopup="menu"
         aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-        className="rounded-[var(--radius-control)] p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+        disabled={disabled}
+        onClick={() => {
+          if (disabled) return
+          setOpen((v) => !v)
+        }}
+        className="rounded-[var(--radius-control)] p-1.5 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 disabled:cursor-not-allowed disabled:opacity-40"
       >
         <MoreVertical className="size-4" />
       </button>
@@ -349,25 +413,58 @@ function PlanActionsMenu({
           role="menu"
           className="absolute right-0 z-20 mt-1 w-52 overflow-hidden rounded-[var(--radius-control)] border border-zinc-200 bg-surface py-1 shadow-lg"
         >
-          <Link to={adminMealPlanDetail(plan.id)} role="menuitem" className={itemClass}>
+          <Link
+            to={adminMealPlanDetail(plan.id)}
+            role="menuitem"
+            className={cn(itemClass, disabled && 'pointer-events-none')}
+          >
             <Pencil className="size-4 text-zinc-400" aria-hidden />
             Editar
           </Link>
-          <button type="button" role="menuitem" className={itemClass} onClick={act(onDuplicate)}>
-            <Copy className="size-4 text-zinc-400" aria-hidden />
-            Duplicar
+          <button
+            type="button"
+            role="menuitem"
+            className={itemClass}
+            disabled={disabled}
+            onClick={() => {
+              if (disabled) return
+              setOpen(false)
+              onDuplicate()
+            }}
+          >
+            {busyAction === 'duplicate' ? (
+              <Spinner className="size-4" />
+            ) : (
+              <Copy className="size-4 text-zinc-400" aria-hidden />
+            )}
+            {busyAction === 'duplicate' ? BUSY_LABEL.duplicate : 'Duplicar'}
           </button>
           {onSaveTemplate && (
-            <button type="button" role="menuitem" className={itemClass} onClick={act(onSaveTemplate)}>
-              <BookmarkPlus className="size-4 text-zinc-400" aria-hidden />
-              Guardar como plantilla
+            <button
+              type="button"
+              role="menuitem"
+              className={itemClass}
+              disabled={disabled}
+              onClick={() => {
+                if (disabled) return
+                setOpen(false)
+                onSaveTemplate()
+              }}
+            >
+              {busyAction === 'template' ? (
+                <Spinner className="size-4" />
+              ) : (
+                <BookmarkPlus className="size-4 text-zinc-400" aria-hidden />
+              )}
+              {busyAction === 'template' ? BUSY_LABEL.template : 'Guardar como plantilla'}
             </button>
           )}
           <button
             type="button"
             role="menuitem"
             className={cn(itemClass, 'text-red-600 hover:bg-red-50 focus-visible:bg-red-50')}
-            onClick={act(onDelete)}
+            disabled={disabled}
+            onClick={closeThen(onDelete)}
           >
             <Trash2 className="size-4" aria-hidden />
             Eliminar

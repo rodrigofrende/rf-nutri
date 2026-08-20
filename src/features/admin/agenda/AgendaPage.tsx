@@ -33,6 +33,7 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import {
   Badge,
   Button,
+  BusyOverlay,
   Card,
   ConfirmDialog,
   EmptyState,
@@ -49,8 +50,10 @@ import {
   APPOINTMENT_STATUS_LABELS,
   APPOINTMENT_STATUS_TONES,
   APPOINTMENT_TYPE_LABELS,
+  agendaMenuStatusActions,
 } from './appointmentLabels'
 import { AppointmentFormModal } from './AppointmentFormModal'
+import { AGENDA_HELP } from '@/content/help'
 
 type AgendaView = 'day' | 'week'
 
@@ -82,6 +85,14 @@ const STATUS_SUCCESS: Record<AppointmentStatus, string> = {
   no_show: 'Paciente marcado como ausente',
 }
 
+const STATUS_BUSY_LABEL: Record<AppointmentStatus, string> = {
+  scheduled: 'Actualizando…',
+  confirmed: 'Confirmando…',
+  completed: 'Completando…',
+  cancelled: 'Cancelando…',
+  no_show: 'Marcando ausente…',
+}
+
 export function AgendaPage() {
   const { user } = useAuth()
   const { activeClinicId } = useTenant()
@@ -93,6 +104,7 @@ export function AgendaPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Appointment | null>(null)
   const [toDelete, setToDelete] = useState<Appointment | null>(null)
+  const [busy, setBusy] = useState<{ id: string; status: AppointmentStatus } | null>(null)
 
   // Rango consultado [from, to): 00:00 del primer día → 00:00 del día siguiente
   // al último. La semana arranca el lunes (startOfWeek).
@@ -174,11 +186,17 @@ export function AgendaPage() {
     if (ok) setModalOpen(false)
   }
 
-  const handleSetStatus = (a: Appointment, status: AppointmentStatus) => {
-    void run(() => setStatus.mutateAsync({ appointmentId: a.id, status }), {
-      success: STATUS_SUCCESS[status],
-      error: 'No se pudo actualizar el turno',
-    })
+  const handleSetStatus = async (a: Appointment, status: AppointmentStatus) => {
+    if (busy) return
+    setBusy({ id: a.id, status })
+    try {
+      await run(() => setStatus.mutateAsync({ appointmentId: a.id, status }), {
+        success: STATUS_SUCCESS[status],
+        error: 'No se pudo actualizar el turno',
+      })
+    } finally {
+      setBusy(null)
+    }
   }
 
   const confirmDelete = async () => {
@@ -195,9 +213,11 @@ export function AgendaPage() {
       key={a.id}
       appointment={a}
       compact={compact}
+      busyLabel={busy?.id === a.id ? STATUS_BUSY_LABEL[busy.status] : null}
+      actionsDisabled={!!busy}
       onEdit={() => openEdit(a)}
       onDelete={() => setToDelete(a)}
-      onSetStatus={(status) => handleSetStatus(a, status)}
+      onSetStatus={(status) => void handleSetStatus(a, status)}
     />
   )
 
@@ -207,6 +227,8 @@ export function AgendaPage() {
     <AppLayout
       title="Agenda"
       subtitle="Turnos de tu consultorio, por día o por semana."
+      help={AGENDA_HELP}
+      helpTitle="Cómo funciona la agenda"
       actions={
         <Button leftIcon={<Plus className="size-4" />} onClick={openNew}>
           Nuevo turno
@@ -406,18 +428,28 @@ function KpiChip({
 function AppointmentCard({
   appointment: a,
   compact,
+  busyLabel,
+  actionsDisabled,
   onEdit,
   onDelete,
   onSetStatus,
 }: {
   appointment: Appointment
   compact?: boolean
+  busyLabel: string | null
+  actionsDisabled: boolean
   onEdit: () => void
   onDelete: () => void
   onSetStatus: (status: AppointmentStatus) => void
 }) {
+  const busy = !!busyLabel
+
   return (
-    <Card className={cn(compact ? 'p-2.5' : 'p-4', a.status === 'cancelled' && 'opacity-60')}>
+    <Card
+      className={cn('relative', compact ? 'p-2.5' : 'p-4', a.status === 'cancelled' && 'opacity-60')}
+      aria-busy={busy}
+    >
+      {busyLabel && <BusyOverlay label={busyLabel} />}
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <p
@@ -434,6 +466,7 @@ function AppointmentCard({
             className={cn(
               'mt-0.5 block truncate font-medium text-zinc-900 hover:text-brand-700 hover:underline',
               compact ? 'text-xs' : 'text-sm',
+              busy && 'pointer-events-none',
             )}
           >
             {a.memberName}
@@ -442,7 +475,13 @@ function AppointmentCard({
             {APPOINTMENT_TYPE_LABELS[a.type]}
           </p>
         </div>
-        <AppointmentMenu appointment={a} onEdit={onEdit} onDelete={onDelete} onSetStatus={onSetStatus} />
+        <AppointmentMenu
+          appointment={a}
+          disabled={actionsDisabled}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onSetStatus={onSetStatus}
+        />
       </div>
       <div className={compact ? 'mt-1.5' : 'mt-2'}>
         <Badge tone={APPOINTMENT_STATUS_TONES[a.status]}>
@@ -453,29 +492,42 @@ function AppointmentCard({
   )
 }
 
-/** Transiciones de estado ofrecidas en el menú (se oculta la del estado actual). */
-const STATUS_ACTIONS: { status: AppointmentStatus; label: string; icon: LucideIcon }[] = [
-  { status: 'confirmed', label: 'Confirmar', icon: Check },
-  { status: 'completed', label: 'Completar', icon: CheckCheck },
-  { status: 'cancelled', label: 'Cancelar turno', icon: Ban },
-  { status: 'no_show', label: 'Marcar ausente', icon: UserX },
-]
+/** Acciones de estado del menú: solo el siguiente paso, no reabrir un turno cerrado. */
+const STATUS_ACTION_META: Record<
+  Exclude<AppointmentStatus, 'scheduled'>,
+  { label: string; icon: LucideIcon }
+> = {
+  confirmed: { label: 'Confirmar', icon: Check },
+  completed: { label: 'Completar', icon: CheckCheck },
+  cancelled: { label: 'Cancelar turno', icon: Ban },
+  no_show: { label: 'Marcar ausente', icon: UserX },
+}
 
 function AppointmentMenu({
   appointment,
+  disabled,
   onEdit,
   onDelete,
   onSetStatus,
 }: {
   appointment: Appointment
+  disabled: boolean
   onEdit: () => void
   onDelete: () => void
   onSetStatus: (status: AppointmentStatus) => void
 }) {
   const [open, setOpen] = useState(false)
-  const items = STATUS_ACTIONS.filter((i) => i.status !== appointment.status)
+  const isClosed =
+    appointment.status === 'completed' ||
+    appointment.status === 'cancelled' ||
+    appointment.status === 'no_show'
+  const statusItems = agendaMenuStatusActions(appointment.status).map((status) => ({
+    status,
+    ...STATUS_ACTION_META[status],
+  }))
 
   const pick = (action: () => void) => {
+    if (disabled) return
     setOpen(false)
     action()
   }
@@ -486,45 +538,53 @@ function AppointmentMenu({
         icon={<MoreVertical className="size-4" />}
         label={`Acciones del turno de ${appointment.memberName}`}
         size="sm"
+        disabled={disabled}
         aria-haspopup="menu"
         aria-expanded={open}
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => {
+          if (disabled) return
+          setOpen((o) => !o)
+        }}
       />
       {open && (
         <>
-          {/* Backdrop invisible: cierra el menú al clickear afuera */}
           <div className="fixed inset-0 z-10" aria-hidden onClick={() => setOpen(false)} />
           <div
             role="menu"
-            className="absolute right-0 z-20 mt-1 w-48 rounded-xl border border-zinc-200 bg-surface p-1 shadow-lg"
+            className="absolute right-0 z-20 mt-1 w-52 rounded-xl border border-zinc-200 bg-surface p-1 shadow-lg"
           >
-            {items.map(({ status, label, icon: Icon }) => (
+            {statusItems.map(({ status, label, icon: Icon }) => (
               <button
                 key={status}
                 type="button"
                 role="menuitem"
+                disabled={disabled}
                 onClick={() => pick(() => onSetStatus(status))}
-                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-50"
+                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Icon className="size-4 text-zinc-400" aria-hidden />
                 {label}
               </button>
             ))}
-            <div className="my-1 border-t border-zinc-100" aria-hidden />
+            {statusItems.length > 0 && (
+              <div className="my-1 border-t border-zinc-100" aria-hidden />
+            )}
             <button
               type="button"
               role="menuitem"
+              disabled={disabled}
               onClick={() => pick(onEdit)}
-              className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-50"
+              className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Pencil className="size-4 text-zinc-400" aria-hidden />
-              Editar
+              Editar{isClosed ? ' o corregir' : ''}
             </button>
             <button
               type="button"
               role="menuitem"
+              disabled={disabled}
               onClick={() => pick(onDelete)}
-              className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+              className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Trash2 className="size-4" aria-hidden />
               Eliminar

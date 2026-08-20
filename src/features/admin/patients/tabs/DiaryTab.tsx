@@ -6,6 +6,8 @@ import { Card, CardBody, EmptyState, Spinner } from '@/components/ui'
 import { cn } from '@/utils/cn'
 import { addDays, lastNDayKeys, parseDayKey, toDayKey, todayKey } from '@/utils/dateKeys'
 import { MEAL_SLOTS, MEAL_SLOT_LABELS } from '@/utils/nutrition'
+import { PageHelp } from '@/components/shared/PageHelp'
+import { FICHA_DIARY_HELP } from '@/content/help'
 
 const WEEKDAY_LETTERS = ['D', 'L', 'M', 'M', 'J', 'V', 'S']
 
@@ -81,6 +83,7 @@ export function DiaryTab({ clinicId, memberId }: { clinicId: string; memberId: s
 
   return (
     <div className="space-y-4">
+      <PageHelp items={FICHA_DIARY_HELP} title="Cómo funciona el diario" compact />
       <Card>
         <CardBody className="p-3 sm:p-4">
           <div className="grid grid-cols-7 gap-1">

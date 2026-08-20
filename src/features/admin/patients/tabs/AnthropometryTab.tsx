@@ -49,6 +49,8 @@ import {
 } from '@/utils/anthropometry'
 import { formatDate, toDate, toDateInput } from '@/utils/format'
 import { parseDateInput, todayDateInput } from '@/utils/dates'
+import { PageHelp } from '@/components/shared/PageHelp'
+import { ANTHROPOMETRY_HELP } from '@/content/help'
 
 const FAT_FORMULA_LABELS: Record<BodyFatFormula, string> = {
   durnin: 'Durnin-Womersley',
@@ -271,6 +273,7 @@ export function AnthropometryTab({
 
   return (
     <div className="space-y-4">
+      <PageHelp items={ANTHROPOMETRY_HELP} title="Cómo funciona la antropometría" compact />
       {missingContext && (
         <div className="flex items-start gap-3 rounded-[var(--radius-card)] border border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
           <Info className="mt-0.5 size-5 shrink-0 text-sky-600" aria-hidden />

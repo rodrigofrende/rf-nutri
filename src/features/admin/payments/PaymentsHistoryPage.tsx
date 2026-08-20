@@ -29,6 +29,7 @@ import { monthKey, MONTHS_LONG } from '@/utils/dates'
 import { TARIFF_KIND_LABELS, tariffKindLabel } from '@/utils/tariffs'
 import { adminPatientDetail } from '@/routes/routePaths'
 import { RecordPaymentModal } from './RecordPaymentModal'
+import { PAYMENTS_HELP } from '@/content/help'
 
 const TARIFF_KIND_VALUES = Object.keys(TARIFF_KIND_LABELS) as TariffKind[]
 
@@ -174,6 +175,8 @@ export function PaymentsHistoryPage() {
     <AppLayout
       title="Cobros"
       subtitle="Historial de cobros a pacientes."
+      help={PAYMENTS_HELP}
+      helpTitle="Cómo funcionan los cobros"
       actions={
         <Button leftIcon={<Plus className="size-4" />} onClick={() => setModalOpen(true)}>
           Registrar cobro

@@ -24,6 +24,7 @@ import {
 } from '@/components/ui'
 import { memberAccessState, STATUS_LABEL } from '@/utils/roles'
 import { adminPatientDetail } from '@/routes/routePaths'
+import { PATIENTS_HELP } from '@/content/help'
 import { env } from '@/config/env'
 import { ensureClinicLoginIndexes } from '@/services/memberLoginService'
 import { PatientFormModal } from './PatientFormModal'
@@ -158,6 +159,8 @@ export function PatientsListPage() {
     <AppLayout
       title="Pacientes"
       subtitle="Gestioná las fichas, planes y seguimiento de tus pacientes."
+      help={PATIENTS_HELP}
+      helpTitle="Cómo funcionan los pacientes"
       actions={
         <Button leftIcon={<Plus className="size-4" />} onClick={() => setModalOpen(true)}>
           Nuevo paciente

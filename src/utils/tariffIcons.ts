@@ -21,16 +21,16 @@ export interface TariffIconMeta {
 }
 
 export const TARIFF_ICONS: Record<TariffIconKey, TariffIconMeta> = {
-  membership: { label: 'Plan mensual', icon: Tags, keywords: ['plan', 'tarifa', 'seguimiento'] },
-  dumbbell: { label: 'Deportiva', icon: Dumbbell, keywords: ['deporte', 'rendimiento', 'atleta'] },
-  activity: { label: 'Antropometría', icon: Activity, keywords: ['medición', 'pliegues', 'composición'] },
-  heart: { label: 'Salud', icon: HeartPulse, keywords: ['clínica', 'patología', 'cardio'] },
-  users: { label: 'Grupal', icon: Users, keywords: ['taller', 'grupo', 'familia'] },
-  calendar: { label: 'Consulta', icon: Calendar, keywords: ['turno', 'primera', 'seguimiento'] },
-  star: { label: 'Destacado', icon: Star, keywords: ['premium', 'popular'] },
-  crown: { label: 'Premium', icon: Crown, keywords: ['vip', 'plus', 'pro'] },
-  zap: { label: 'Express', icon: Zap, keywords: ['rápido', 'virtual', 'online'] },
-  sparkles: { label: 'Especial', icon: Sparkles, keywords: ['promo', 'nuevo', 'pack'] },
+  membership: { label: 'Etiqueta', icon: Tags },
+  calendar: { label: 'Calendario', icon: Calendar },
+  heart: { label: 'Corazón', icon: HeartPulse },
+  activity: { label: 'Actividad', icon: Activity },
+  dumbbell: { label: 'Mancuerna', icon: Dumbbell },
+  users: { label: 'Personas', icon: Users },
+  star: { label: 'Estrella', icon: Star },
+  crown: { label: 'Corona', icon: Crown },
+  zap: { label: 'Rayo', icon: Zap },
+  sparkles: { label: 'Destellos', icon: Sparkles },
 }
 
 export const TARIFF_ICON_OPTIONS: IconSelectOption<TariffIconKey>[] = (

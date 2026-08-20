@@ -99,7 +99,14 @@ export function TariffFormModal({
   return (
     <Modal open={open} onClose={close} title={initial ? 'Editar tarifa' : 'Nueva tarifa'} size="lg">
       <form onSubmit={handleSubmit((v) => onSubmit(v))} className="space-y-4">
-        <FormField label="Icono de la tarifa">
+        <FormField label="Nombre del servicio" error={errors.name?.message} required>
+          <Input placeholder="Ej. Consulta de seguimiento" {...register('name')} invalid={!!errors.name} />
+        </FormField>
+
+        <FormField
+          label="Icono"
+          tooltip="Solo es visual: aparece junto al nombre en listas y cobros. No define el tipo de servicio."
+        >
           <Controller
             control={control}
             name="icon"
@@ -108,15 +115,12 @@ export function TariffFormModal({
                 value={field.value ?? 'calendar'}
                 onChange={field.onChange}
                 options={TARIFF_ICON_OPTIONS}
-                placeholder="Elegir icono"
+                placeholder="Icono de la tarifa"
               />
             )}
           />
         </FormField>
 
-        <FormField label="Nombre del servicio" error={errors.name?.message} required>
-          <Input placeholder="Ej. Consulta de seguimiento" {...register('name')} invalid={!!errors.name} />
-        </FormField>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormField label="Tipo">
             <Select options={kindOptions} {...register('kind')} />

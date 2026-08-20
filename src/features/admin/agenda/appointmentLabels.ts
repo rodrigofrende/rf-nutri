@@ -37,3 +37,23 @@ export const APPOINTMENT_STATUS_TONES: Record<
   cancelled: 'neutral',
   no_show: 'red',
 }
+
+/** Siguiente paso en la agenda. Los estados cerrados se corrigen desde Editar. */
+export function agendaMenuStatusActions(
+  status: AppointmentStatus,
+): Exclude<AppointmentStatus, 'scheduled'>[] {
+  switch (status) {
+    case 'scheduled':
+      return ['confirmed', 'cancelled']
+    case 'confirmed':
+      return ['completed', 'no_show', 'cancelled']
+    case 'completed':
+    case 'cancelled':
+    case 'no_show':
+      return []
+    default: {
+      const _exhaustive: never = status
+      return _exhaustive
+    }
+  }
+}

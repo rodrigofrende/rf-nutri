@@ -6,12 +6,16 @@ import { mailtoLink } from '@/utils/contact'
 import { APP_NAME, APP_VERSION, PLATFORM_EMAIL } from '@/config/app'
 import { WhatsNewModal } from '@/features/whats-new/WhatsNewModal'
 import { useWhatsNew } from '@/features/whats-new/useWhatsNew'
+import { PageHelp } from '@/components/shared/PageHelp'
+import type { PageHelpItem } from '@/content/help'
 import { Sidebar } from './Sidebar'
 
 export function AppLayout({
   title,
   subtitle,
   actions,
+  help,
+  helpTitle,
   children,
 }: {
   title: string
@@ -19,6 +23,8 @@ export function AppLayout({
   subtitle?: ReactNode
   /** Acciones de la página, alineadas a la derecha del header (ej. botón "Nuevo"). */
   actions?: ReactNode
+  help?: PageHelpItem[]
+  helpTitle?: string
   children: ReactNode
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -132,6 +138,8 @@ Versión: ${APP_VERSION}`,
                 </div>
               </div>
             </div>
+
+            {help && help.length > 0 && <PageHelp items={help} title={helpTitle} />}
 
             {children}
           </div>

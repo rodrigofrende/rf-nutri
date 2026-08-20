@@ -33,6 +33,7 @@ import { planDailyAverage } from '@/utils/nutrition'
 import { adminMealPlanDetail, ROUTES } from '@/routes/routePaths'
 import { MealPlanBuilder } from './MealPlanBuilder'
 import { AssignPlanModal } from './AssignPlanModal'
+import { MEAL_PLAN_EDITOR_HELP } from '@/content/help'
 import {
   emptyDraft,
   PLAN_STATUS_LABELS,
@@ -204,7 +205,11 @@ export function MealPlanEditorPage() {
   const saving = create.isPending || update.isPending || assign.isPending
 
   return (
-    <AppLayout title={isNew ? 'Nuevo plan' : draft.name || 'Plan alimentario'}>
+    <AppLayout
+      title={isNew ? 'Nuevo plan' : draft.name || 'Plan alimentario'}
+      help={MEAL_PLAN_EDITOR_HELP}
+      helpTitle="Cómo se arma un plan"
+    >
       <button
         type="button"
         onClick={() => navigate(ROUTES.ADMIN_MEAL_PLANS)}
@@ -288,7 +293,7 @@ export function MealPlanEditorPage() {
         </FormField>
         <FormField label="Indicaciones generales">
           <Textarea
-            rows={2}
+            rows={4}
             value={draft.generalNotes ?? ''}
             onChange={(e) => patch({ generalNotes: e.target.value })}
             placeholder="Ej. Tomar 2 L de agua. Cocinar sin sal."

@@ -7,6 +7,8 @@ import { useToastAction } from '@/hooks/useToastAction'
 import { Badge, Button, Card, CardBody, EmptyState, Spinner } from '@/components/ui'
 import { toDate } from '@/utils/format'
 import { AppointmentFormModal } from '@/features/admin/agenda/AppointmentFormModal'
+import { PageHelp } from '@/components/shared/PageHelp'
+import { FICHA_APPOINTMENTS_HELP } from '@/content/help'
 import {
   APPOINTMENT_STATUS_LABELS,
   APPOINTMENT_STATUS_TONES,
@@ -67,6 +69,7 @@ export function AppointmentsTab({
 
   return (
     <div className="space-y-4">
+      <PageHelp items={FICHA_APPOINTMENTS_HELP} title="Cómo funcionan los turnos" compact />
       <div className="flex justify-end">
         <Button size="sm" leftIcon={<Plus className="size-4" />} onClick={() => setOpen(true)}>
           Nuevo turno

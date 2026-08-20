@@ -3,7 +3,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { AlertTriangle } from 'lucide-react'
-import type { Appointment, AppointmentType } from '@/types'
+import type { Appointment, AppointmentStatus, AppointmentType } from '@/types'
 import { overlapsExisting, type NewAppointment } from '@/services/appointmentsService'
 import { useAppointments } from '@/hooks/useAppointments'
 import { useMembers } from '@/hooks/useMembers'
@@ -13,7 +13,7 @@ import { toDate } from '@/utils/format'
 import { todayDateInput } from '@/utils/dates'
 import { addDays, parseDayKey, toDayKey } from '@/utils/dateKeys'
 import { tariffLabel } from '@/utils/tariffs'
-import { APPOINTMENT_TYPE_LABELS } from './appointmentLabels'
+import { APPOINTMENT_STATUS_LABELS, APPOINTMENT_TYPE_LABELS } from './appointmentLabels'
 
 const APPOINTMENT_TYPE_VALUES = [
   'primera_consulta',
@@ -26,6 +26,14 @@ const APPOINTMENT_TYPE_VALUES = [
 /** Duraciones ofrecidas. El form las maneja como string (valor nativo del select). */
 const BASE_DURATIONS = [15, 30, 45, 60, 90]
 
+const APPOINTMENT_STATUS_VALUES = [
+  'scheduled',
+  'confirmed',
+  'completed',
+  'cancelled',
+  'no_show',
+] as const satisfies readonly AppointmentStatus[]
+
 const schema = z.object({
   memberId: z.string().min(1, 'Elegí un paciente'),
   date: z.string().min(1, 'Ingresá la fecha'),
@@ -33,6 +41,7 @@ const schema = z.object({
   durationMin: z.string().min(1, 'Elegí la duración'),
   type: z.enum(APPOINTMENT_TYPE_VALUES),
   tariffId: z.string().optional(),
+  status: z.enum(APPOINTMENT_STATUS_VALUES).optional(),
   notes: z.string().optional(),
 })
 type FormValues = z.infer<typeof schema>
@@ -61,6 +70,7 @@ function valuesFrom(
       durationMin: '30',
       type: 'seguimiento',
       tariffId: '',
+      status: 'scheduled',
       notes: '',
     }
   }
@@ -72,6 +82,7 @@ function valuesFrom(
     durationMin: String(initial.durationMin),
     type: initial.type,
     tariffId: initial.tariffId ?? '',
+    status: initial.status,
     notes: initial.notes ?? '',
   }
 }
@@ -139,6 +150,10 @@ export function AppointmentFormModal({
     value: t,
     label: APPOINTMENT_TYPE_LABELS[t],
   }))
+  const statusOptions = APPOINTMENT_STATUS_VALUES.map((s) => ({
+    value: s,
+    label: APPOINTMENT_STATUS_LABELS[s],
+  }))
 
   // Aviso de solapamiento NO bloqueante: se consultan los turnos del día elegido
   // y se compara contra fecha+hora+duración tipeadas. Es UX, no una garantía
@@ -187,6 +202,7 @@ export function AppointmentFormModal({
       durationMin: Number(v.durationMin),
       type: v.type,
       ...(v.tariffId ? { tariffId: v.tariffId } : {}),
+      ...(initial && v.status ? { status: v.status } : {}),
       ...(v.notes?.trim() ? { notes: v.notes.trim() } : {}),
     })
   }
@@ -219,10 +235,19 @@ export function AppointmentFormModal({
           <FormField label="Tipo de turno">
             <Select options={typeOptions} {...register('type')} />
           </FormField>
-          <FormField label="Tarifa" hint="Opcional, como referencia para el cobro.">
+          <FormField label="Tarifa" hint="Opcional. No registra el cobro: es referencia para cargar el pago en Cobros.">
             <Select options={tariffOptions} placeholder="Sin tarifa" {...register('tariffId')} />
           </FormField>
         </div>
+
+        {initial && (
+          <FormField
+            label="Estado"
+            tooltip="Para corregir un error. En la agenda, el menú del turno solo ofrece el siguiente paso."
+          >
+            <Select options={statusOptions} {...register('status')} />
+          </FormField>
+        )}
 
         <FormField label="Notas">
           <Textarea

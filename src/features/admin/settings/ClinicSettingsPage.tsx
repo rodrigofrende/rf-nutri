@@ -227,7 +227,7 @@ export function ClinicSettingsPage() {
                 checked={draft.anthropometry.showEnergy}
                 onChange={(v) => setAnthro({ showEnergy: v })}
                 label="TMB y gasto energético (GET)"
-                description="Estimación de tasa metabólica basal y gasto energético total."
+                description="TMB: calorías en reposo. GET: las del día completo (TMB × actividad). Se calculan en cada medición si hay peso, talla, edad y sexo."
               />
             </CardBody>
           </Card>

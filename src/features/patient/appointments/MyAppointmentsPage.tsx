@@ -8,6 +8,7 @@ import { useToastAction } from '@/hooks/useToastAction'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { Badge, Button, Card, CardBody, EmptyState, FullPageSpinner, Heading } from '@/components/ui'
 import { toDate } from '@/utils/format'
+import { MY_APPOINTMENTS_HELP } from '@/content/help'
 
 const TYPE_LABELS: Record<AppointmentType, string> = {
   primera_consulta: 'Primera consulta',
@@ -89,7 +90,12 @@ export function MyAppointmentsPage() {
   }
 
   return (
-    <AppLayout title="Mis turnos" subtitle="Tus próximas consultas y tu historial.">
+    <AppLayout
+      title="Mis turnos"
+      subtitle="Tus próximas consultas y tu historial."
+      help={MY_APPOINTMENTS_HELP}
+      helpTitle="Cómo funcionan tus turnos"
+    >
       <div className="mx-auto max-w-2xl space-y-6">
         <section className="space-y-3">
           <Heading variant="card" as="h2">

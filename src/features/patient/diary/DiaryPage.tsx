@@ -13,6 +13,7 @@ import { cn } from '@/utils/cn'
 import { addDays, lastNDayKeys, parseDayKey, toDayKey, todayKey } from '@/utils/dateKeys'
 import { MEAL_SLOTS, MEAL_SLOT_LABELS } from '@/utils/nutrition'
 import { LogMealModal } from './LogMealModal'
+import { DIARY_HELP } from '@/content/help'
 import { WeightEntryModal } from './WeightEntryModal'
 
 const WEEKDAY_LETTERS = ['D', 'L', 'M', 'M', 'J', 'V', 'S']
@@ -140,7 +141,7 @@ export function DiaryPage() {
   }
 
   return (
-    <AppLayout title="Mi diario" subtitle="Registrá cómo te fue con cada comida.">
+    <AppLayout title="Mi diario" subtitle="Registrá cómo te fue con cada comida." help={DIARY_HELP} helpTitle="Cómo funciona el diario">
       <div className="mx-auto max-w-2xl space-y-4">
         {/* Tira semanal: adherencia de los últimos 7 días de un vistazo */}
         <Card>

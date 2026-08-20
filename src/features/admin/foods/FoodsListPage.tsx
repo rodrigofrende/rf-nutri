@@ -25,6 +25,7 @@ import { cn } from '@/utils/cn'
 import { FOOD_CATEGORY_LABELS, FOOD_CATEGORY_ORDER } from './foodCategories'
 import { FoodFormModal } from './FoodFormModal'
 import { ImportSeedButton } from './ImportSeedButton'
+import { FOODS_HELP } from '@/content/help'
 
 /** Números es-AR con hasta 1 decimal (2.7 → "2,7"), para las columnas de macros. */
 const fmt = (n: number) => n.toLocaleString('es-AR', { maximumFractionDigits: 1 })
@@ -181,6 +182,8 @@ export function FoodsListPage() {
     <AppLayout
       title="Alimentos"
       subtitle="Tu catálogo para armar planes. Valores por 100 g / 100 ml."
+      help={FOODS_HELP}
+      helpTitle="Cómo funciona el catálogo"
       actions={
         <>
           <ImportSeedButton clinicId={clinicId} />
