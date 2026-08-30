@@ -1,4 +1,4 @@
-import { orderBy, where } from 'firebase/firestore'
+import { where } from 'firebase/firestore'
 import type { Appointment, MealPlan, PatientPayment } from '@/types'
 import { env } from '@/config/env'
 import { batchUpdate, createBatch, getMany } from './firestore'
