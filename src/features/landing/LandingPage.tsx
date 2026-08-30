@@ -12,7 +12,7 @@ import {
 import { APP_NAME, PLATFORM_EMAIL, PLATFORM_TAGLINE, PLATFORM_WHATSAPP } from '@/config/app'
 import { usePlans } from '@/hooks/usePlans'
 import { useClinicPresentations } from '@/hooks/useClinicPresentation'
-import { BrandLockup, LogoImage } from '@/components/ui'
+import { AppSwitcher, BrandLockup, LogoImage } from '@/components/ui'
 import { publicClinicRoute } from '@/routes/routePaths'
 import { formatCurrency } from '@/utils/format'
 import { buildThemeVars, PLATFORM_DEFAULT_THEME } from '@/utils/theme'
@@ -324,6 +324,7 @@ function NavBarItems() {
       >
         Planes
       </button>
+      <AppSwitcher className="shrink-0" />
       <Link to="/login" className={cn(PILL_LINK, 'border border-white/20 text-white hover:bg-white/10')}>
         <LogIn className="size-3.5" />
         Ingresar
