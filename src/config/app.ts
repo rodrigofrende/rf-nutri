@@ -40,7 +40,7 @@ export const CURRENT_RF_APP: RfProductId = 'nutri'
 
 export const RF_PRODUCTS: RfProduct[] = [
   { id: 'fit', name: 'RF FIT', status: 'live', href: 'https://fit.rf-platform.com', dotClass: 'bg-[#6366f1]' },
-  { id: 'turnos', name: 'RF Turnos', status: 'live', href: 'https://rf-turnos.netlify.app', dotClass: 'bg-[#da164c]' },
+  { id: 'turnos', name: 'RF Turnos', status: 'live', href: 'https://turnos.rf-platform.com', dotClass: 'bg-[#da164c]' },
   { id: 'nutri', name: 'RF NUTRI', status: 'soon', href: null, dotClass: 'bg-[#10b981]' },
   { id: 'logistica', name: 'RF Logística', status: 'building', href: null, dotClass: 'bg-zinc-500' },
 ]
