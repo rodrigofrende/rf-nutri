@@ -47,5 +47,5 @@ export const RF_PRODUCTS: RfProduct[] = [
   { id: 'med', name: 'RF MED', status: 'live', href: 'https://turnos.rf-platform.com', dotClass: 'bg-[#0e7490]' },
   { id: 'nutri', name: 'RF NUTRI', status: 'soon', href: null, dotClass: 'bg-[#10b981]' },
   { id: 'logistica', name: 'RF Logística', status: 'building', href: null, dotClass: 'bg-zinc-500' },
-  { id: 'dev', name: 'RF DEV', status: 'live', href: 'https://dev.rf-platform.com', dotClass: 'bg-[#fbbf24]' },
+  { id: 'dev', name: 'RF DEV', status: 'live', href: 'https://dev.rf-platform.com', dotClass: 'bg-[#7c3aed]' },
 ]
