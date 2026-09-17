@@ -21,10 +21,11 @@ declare const __APP_VERSION__: string
 export const APP_VERSION = __APP_VERSION__
 
 /* ─── Ecosistema RF (selector de apps) ────────────────────────────────────────
- * Se mantiene POR COPIA en los repos RF, como el logo: al lanzar un producto o
+ * Se mantiene POR COPIA en los cinco repos RF (rf-dev, gym-management,
+ * RF-turnos, rf-nutri, rf-platform), como el logo: al lanzar un producto o
  * cambiar una URL hay que actualizar la lista en todos. */
 
-export type RfProductId = 'fit' | 'turnos' | 'nutri' | 'logistica'
+export type RfProductId = 'fit' | 'med' | 'nutri' | 'logistica' | 'dev'
 
 export interface RfProduct {
   id: RfProductId
@@ -40,7 +41,11 @@ export const CURRENT_RF_APP: RfProductId = 'nutri'
 
 export const RF_PRODUCTS: RfProduct[] = [
   { id: 'fit', name: 'RF FIT', status: 'live', href: 'https://fit.rf-platform.com', dotClass: 'bg-[#6366f1]' },
-  { id: 'turnos', name: 'RF Turnos', status: 'live', href: 'https://turnos.rf-platform.com', dotClass: 'bg-[#da164c]' },
+  // El href sigue apuntando a turnos.rf-platform.com: el dominio se muda a
+  // med.rf-platform.com recién cuando estén el DNS y el 301. Cambiarlo antes
+  // deja el selector de apps mandando a una URL que no existe.
+  { id: 'med', name: 'RF MED', status: 'live', href: 'https://turnos.rf-platform.com', dotClass: 'bg-[#0e7490]' },
   { id: 'nutri', name: 'RF NUTRI', status: 'soon', href: null, dotClass: 'bg-[#10b981]' },
   { id: 'logistica', name: 'RF Logística', status: 'building', href: null, dotClass: 'bg-zinc-500' },
+  { id: 'dev', name: 'RF DEV', status: 'live', href: 'https://dev.rf-platform.com', dotClass: 'bg-[#fbbf24]' },
 ]
