@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { createPortal } from 'react-dom'
 import { ArrowUpRight } from 'lucide-react'
 import { cn } from '@/utils/cn'
-import { CURRENT_RF_APP, RF_PRODUCTS, type RfProduct } from '@/config/app'
+import { CURRENT_RF_APP, RF_APPS, RF_SITES, type RfProduct } from '@/config/app'
 
 const MENU_WIDTH = 280
 const GAP = 8
@@ -117,7 +117,7 @@ export function AppSwitcher({ className }: { className?: string }) {
               pos ? '' : 'invisible',
             )}
           >
-            {RF_PRODUCTS.map((product) => {
+            {RF_APPS.map((product) => {
               const isCurrent = product.id === CURRENT_RF_APP
               const row = (
                 <>
@@ -165,13 +165,45 @@ export function AppSwitcher({ className }: { className?: string }) {
                 </div>
               )
             })}
+            {/* Abajo de la línea NO hay productos: está RF. El portfolio y el
+                estudio, que son la misma cosa mirada de dos lados.
+
+                RF DEV bajó acá el 18/9/2026, y el motivo lo dio Rodrigo mirando
+                el panel: *"no es un SaaS, sino algo más propio para mostrar mi
+                experiencia a posibles clientes"*. Arriba estaba listado entre
+                cosas que se contratan, con un "Funcionando" al costado — y ese
+                estado es una promesa sobre un producto. Un portfolio no está
+                "funcionando": está publicado. Por eso acá abajo no lleva dot ni
+                estado: son destinos, no productos.
+
+                La línea pasó a ser un `role="separator"` en vez del `border-t`
+                que colgaba del último link. Un borde superior sobre una pastilla
+                se corta en las esquinas redondeadas, y un borde CSS no se
+                anuncia: el corte entre "las apps" y "RF" ahora también existe
+                para quien no ve el panel. */}
+            <div role="separator" className="mx-3 my-1 h-px bg-white/10" />
+
+            {RF_SITES.map((site) => (
+              <a
+                key={site.id}
+                href={site.href ?? '#'}
+                role="menuitem"
+                className="flex items-center gap-1.5 rounded-lg px-3 py-2.5 transition-colors hover:bg-white/5"
+              >
+                <span className="font-display grow text-[15px] tracking-wide text-white uppercase">
+                  {site.name}
+                </span>
+                <ArrowUpRight className="size-3.5 shrink-0 text-zinc-400" />
+              </a>
+            ))}
+
             <a
               href="https://rf-platform.com"
               role="menuitem"
-              className="mt-1 flex items-center gap-1.5 border-t border-white/10 px-3 pt-3 pb-1.5 text-xs font-semibold text-zinc-400 transition-colors hover:text-white"
+              className="flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-xs font-semibold text-zinc-400 transition-colors hover:text-white"
             >
-              RF Platform — ver el estudio
-              <ArrowUpRight className="size-3.5" />
+              <span className="grow">RF Platform — ver el estudio</span>
+              <ArrowUpRight className="size-3.5 shrink-0" />
             </a>
           </div>,
           document.body,
