@@ -45,27 +45,62 @@ export function AppSwitcher({ className }: { className?: string }) {
     if (!isOpen) return
     place()
     const onReflow = () => place()
-    window.addEventListener('scroll', onReflow, true)
     window.addEventListener('resize', onReflow)
     return () => {
-      window.removeEventListener('scroll', onReflow, true)
       window.removeEventListener('resize', onReflow)
     }
   }, [isOpen, place])
 
+  /**
+   * CERRAR AL SCROLLEAR, NO PERSEGUIR LA BARRA.
+   *
+   * Antes se recalculaba la posición en cada `scroll`, y en un iPhone el panel
+   * quedaba un frame atrás de la barra sticky: el toque caía en el hueco y el
+   * panel se sentía trabado. Así lo arregló RF FIT (oct 2026), y es el gesto
+   * que se espera de un desplegable de header: si la página se va, el panel
+   * también.
+   *
+   * SÓLO SI LA PÁGINA SE MOVIÓ. Un `scroll` sin desplazamiento no lo hizo la
+   * persona: lo dispara un `scrollIntoView` o la barra de direcciones de iOS al
+   * acomodarse. Y se escucha recién un instante después de abrir, para que el
+   * primer layout no lo cierre apenas aparece.
+   */
   useEffect(() => {
     if (!isOpen) return
-    const onDown = (e: MouseEvent) => {
+    const yAlAbrir = window.scrollY
+    const onScroll = () => {
+      if (window.scrollY !== yAlAbrir) setIsOpen(false)
+    }
+    const timer = window.setTimeout(() => {
+      window.addEventListener('scroll', onScroll, { passive: true })
+    }, 50)
+    return () => {
+      window.clearTimeout(timer)
+      window.removeEventListener('scroll', onScroll)
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    if (!isOpen) return
+    /*
+      `pointerdown` y no `mousedown`. En un teléfono el `mousedown` de un toque
+      es un evento de COMPATIBILIDAD: el navegador lo sintetiza después de
+      soltar, y sobre elementos no interactivos iOS puede no emitirlo. O sea que
+      "tocar afuera para cerrar", que es como todo el mundo cierra un panel en un
+      teléfono, fallaba justo en el iPhone. `pointerdown` es el mismo evento
+      para el dedo, el mouse y el lápiz (así lo resolvió rf-dev).
+    */
+    const onDown = (e: PointerEvent) => {
       const t = e.target as Node
       if (!wrapRef.current?.contains(t) && !menuRef.current?.contains(t)) setIsOpen(false)
     }
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setIsOpen(false)
     }
-    document.addEventListener('mousedown', onDown)
+    document.addEventListener('pointerdown', onDown)
     document.addEventListener('keydown', onKey)
     return () => {
-      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('pointerdown', onDown)
       document.removeEventListener('keydown', onKey)
     }
   }, [isOpen])
@@ -78,7 +113,9 @@ export function AppSwitcher({ className }: { className?: string }) {
         aria-label="Apps del estudio RF"
         title="Apps del estudio RF"
         aria-expanded={isOpen}
-        className="flex size-9 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none"
+        // El `active:` es la respuesta al toque: en la landing el recuadro gris
+        // de iOS está apagado (`.rf-tacto`), así que sin esto el dedo no vería nada.
+        className="flex size-9 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-white/10 hover:text-white active:bg-white/15 active:text-white focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:outline-none"
       >
         <svg
           width="19"
@@ -113,7 +150,9 @@ export function AppSwitcher({ className }: { className?: string }) {
             }}
             className={cn(
               // Panel oscuro: es el momento de marca del ecosistema.
-              'z-[100] rounded-[14px] border border-white/10 bg-zinc-900 p-2 shadow-xl shadow-black/40',
+              // `rf-tacto` también acá: el panel cuelga del <body> por el portal,
+              // así que no hereda el de la landing.
+              'rf-tacto rf-panel-in z-[100] rounded-[14px] border border-white/10 bg-zinc-900 p-2 shadow-xl shadow-black/40',
               pos ? '' : 'invisible',
             )}
           >
@@ -153,7 +192,7 @@ export function AppSwitcher({ className }: { className?: string }) {
                     key={product.id}
                     href={product.href}
                     role="menuitem"
-                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-white/5"
+                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-white/5 active:bg-white/10"
                   >
                     {row}
                   </a>
@@ -188,7 +227,7 @@ export function AppSwitcher({ className }: { className?: string }) {
                 key={site.id}
                 href={site.href ?? '#'}
                 role="menuitem"
-                className="flex items-center gap-1.5 rounded-lg px-3 py-2.5 transition-colors hover:bg-white/5"
+                className="flex items-center gap-1.5 rounded-lg px-3 py-2.5 transition-colors hover:bg-white/5 active:bg-white/10"
               >
                 <span className="font-display grow text-[15px] tracking-wide text-white uppercase">
                   {site.name}
@@ -200,7 +239,7 @@ export function AppSwitcher({ className }: { className?: string }) {
             <a
               href="https://rf-platform.com"
               role="menuitem"
-              className="flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-xs font-semibold text-zinc-400 transition-colors hover:text-white"
+              className="flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-xs font-semibold text-zinc-400 transition-colors hover:text-white active:text-white"
             >
               <span className="grow">RF Platform — ver el estudio</span>
               <ArrowUpRight className="size-3.5 shrink-0" />

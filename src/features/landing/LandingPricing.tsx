@@ -58,7 +58,7 @@ export function LandingPricing() {
             ¿No sabés cuál va con tu consultorio?{' '}
             <a
               href={mailtoLink(PLATFORM_EMAIL, EMAIL_PLAN_HELP_SUBJECT) ?? undefined}
-              className="font-semibold text-brand-400 hover:text-brand-300"
+              className="font-semibold text-brand-400 hover:text-brand-300 active:text-brand-300"
             >
               Escribinos y lo vemos juntos.
             </a>

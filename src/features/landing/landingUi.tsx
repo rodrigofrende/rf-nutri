@@ -51,10 +51,10 @@ export function CtaButton({
   children: ReactNode
 }) {
   const className = cn(
-    'inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold uppercase tracking-wide transition-transform hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950',
+    'inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-bold uppercase tracking-wide transition-transform hover:scale-[1.03] active:scale-[0.97] motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950',
     primary
-      ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30'
-      : 'border border-white/20 text-white hover:bg-white/10',
+      ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30 active:bg-brand-600'
+      : 'border border-white/20 text-white hover:bg-white/10 active:bg-white/15',
   )
   const content = (
     <>

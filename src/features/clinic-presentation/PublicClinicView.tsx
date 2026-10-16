@@ -107,7 +107,7 @@ export function PublicClinicView({
       <header className="relative overflow-hidden">
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-40 left-1/2 size-[42rem] -translate-x-1/2 rounded-full bg-brand-500/25 blur-[120px]"
+          className="rf-halo pointer-events-none absolute -top-[25rem] left-1/2 size-[72rem] -translate-x-1/2"
         />
         <div className="relative mx-auto max-w-5xl px-6 pb-14 pt-8 sm:pb-20 sm:pt-10">
           <div className="flex flex-col gap-10 @4xl:flex-row @4xl:items-start @4xl:justify-between">
