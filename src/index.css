@@ -60,6 +60,34 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* ─── Tacto en el celular ───────────────────────────────────────────────────
+   Lo mismo que RF FIT (oct 2026), donde en un iPhone los botones de la landing
+   se sentían toscos: "a veces andan y a veces no".
+
+   `manipulation` apaga el doble toque para hacer zoom, y con él la espera del
+   navegador por si venía un segundo toque. Va en todo el sitio: no le saca
+   nada a nadie. */
+button,
+a,
+label,
+summary,
+select,
+[role='button'],
+[role='tab'],
+[role='menuitem'] {
+  touch-action: manipulation;
+}
+
+/* El recuadro gris que pinta iOS sobre lo que se toca no es feedback: es un
+   artefacto del navegador, del tamaño de la caja y no del control. Se apaga SÓLO
+   donde cada tocable tiene su propio `active:` (la landing y el panel de apps),
+   y por eso es una clase y no una regla global: los botones de la app todavía
+   no tienen `active:`, y sin el gris quedarían MUDOS al toque. Se hereda, así
+   que alcanza con ponerla en el contenedor. */
+.rf-tacto {
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* ─── Animaciones de la landing pública (sutiles, CSS puro) ─────────────────
    Entrada escalonada del hero + glow que "respira". Se anulan con
    prefers-reduced-motion para accesibilidad. */
@@ -95,12 +123,55 @@ body {
   animation: rf-glow 6s ease-in-out infinite;
 }
 
+/**
+ * EL HALO ES UN DEGRADADO, NO UN CÍRCULO DESENFOCADO (igual que en RF FIT).
+ *
+ * Era un círculo de 42rem con un blur de 120px. Se veía igual, pero un `filter`
+ * de ese radio sobre una capa que además late (rf-glow) es de lo más caro que
+ * se le puede pedir a un iPhone, y al scrollear la barra sticky le pone su
+ * `backdrop-blur` ENCIMA: dos desenfoques recalculados en cada cuadro, justo en
+ * la primera pantalla. Un degradado se pinta una vez y después sólo cambia la
+ * opacidad.
+ *
+ * Las paradas imitan la caída del blur (un disco de 336px de radio con una
+ * gaussiana de 120px): mitad de intensidad en el borde del disco viejo (58%) y
+ * casi nada dos sigmas más afuera. Por eso la caja creció a 72rem: el blur
+ * pintaba más allá de su propia caja y el degradado no puede.
+ */
+.rf-halo {
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--color-brand-500) 25%, transparent) 0%,
+    color-mix(in srgb, var(--color-brand-500) 21%, transparent) 37.5%,
+    color-mix(in srgb, var(--color-brand-500) 12.5%, transparent) 58%,
+    color-mix(in srgb, var(--color-brand-500) 4%, transparent) 79%,
+    transparent 100%
+  );
+}
+
+/* ─── Entrada del panel de apps (AppSwitcher) ───────────────────────────────
+   Aparecía de golpe, y en el celular eso se sentía tosco. Baja apenas desde el
+   waffle en 160ms: es un panel que se abre y se cierra seguido, así que tiene
+   que ser corto. Sólo `from`: sin animación se ve completo y quieto. */
+@keyframes rf-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+}
+
+.rf-panel-in {
+  transform-origin: top right;
+  animation: rf-panel-in 160ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rf-fade-up {
     opacity: 1;
     animation: none;
   }
-  .rf-glow {
+  .rf-glow,
+  .rf-panel-in {
     animation: none;
   }
 }

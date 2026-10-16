@@ -44,18 +44,21 @@ const CURRENT_YEAR = new Date().getFullYear()
  * de la PLATAFORMA scopeado inline: el theme del tenant de un admin logueado
  * nunca la pisa. Nota de theming: NO usar text-zinc-700/800/900 acá
  * (buildThemeVars los remapea al color de texto del tema).
+ *
+ * `rf-tacto` apaga el recuadro gris de iOS en toda la landing (ver index.css):
+ * cada tocable de acá tiene que llevar su `active:`, o queda mudo al toque.
  */
 export function LandingPage() {
   const themeStyle = buildThemeVars(PLATFORM_DEFAULT_THEME) as CSSProperties
   return (
-    <div style={themeStyle} className="min-h-full bg-zinc-950">
+    <div style={themeStyle} className="rf-tacto min-h-full bg-zinc-950">
       <LandingView />
     </div>
   )
 }
 
 const PILL_LINK =
-  'inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wide transition-transform hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400'
+  'inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wide transition-transform hover:scale-[1.03] active:scale-[0.97] motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400'
 
 function LandingView() {
   const { data, isError } = usePlans()
@@ -94,7 +97,7 @@ function LandingView() {
       <header className="relative overflow-hidden">
         <div
           aria-hidden
-          className="rf-glow pointer-events-none absolute -top-40 left-1/2 size-[42rem] -translate-x-1/2 rounded-full bg-brand-500/25 blur-[120px]"
+          className="rf-glow rf-halo pointer-events-none absolute -top-[25rem] left-1/2 size-[72rem] -translate-x-1/2"
         />
         {/* Barra estática de entrada: "Ingresar" visible sin scrollear (la
             sticky la releva cuando el hero sale de pantalla). */}
@@ -227,7 +230,7 @@ function LandingView() {
           <div className="space-y-3">
             {FAQS.map((faq) => (
               <details key={faq.q} className="group rounded-2xl border border-white/10 bg-zinc-900">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-5 font-semibold [&::-webkit-details-marker]:hidden">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl p-5 font-semibold transition-colors active:bg-white/5 [&::-webkit-details-marker]:hidden">
                   {faq.q}
                   <ChevronDown className="size-4 shrink-0 text-zinc-500 transition-transform group-open:rotate-180" />
                 </summary>
@@ -266,7 +269,7 @@ function LandingView() {
             )}
             <Link
               to="/login"
-              className="inline-flex items-center gap-2 rounded-full border border-white/20 px-6 py-3 text-sm font-bold uppercase tracking-wide text-white transition-transform hover:scale-[1.03] hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+              className="inline-flex items-center gap-2 rounded-full border border-white/20 px-6 py-3 text-sm font-bold uppercase tracking-wide text-white transition-transform hover:scale-[1.03] hover:bg-white/10 active:scale-[0.97] active:bg-white/15 motion-reduce:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
             >
               <LogIn className="size-4" />
               Ingresar
@@ -282,16 +285,16 @@ function LandingView() {
           </div>
           <p className="text-[11px] leading-relaxed text-zinc-500">{PLATFORM_TAGLINE}</p>
           <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-zinc-400">
-            <button type="button" onClick={() => scrollToId('funciones')} className="hover:text-white">
+            <button type="button" onClick={() => scrollToId('funciones')} className="hover:text-white active:text-white">
               Funciones
             </button>
-            <button type="button" onClick={() => scrollToId('planes')} className="hover:text-white">
+            <button type="button" onClick={() => scrollToId('planes')} className="hover:text-white active:text-white">
               Planes
             </button>
-            <button type="button" onClick={() => scrollToId('preguntas')} className="hover:text-white">
+            <button type="button" onClick={() => scrollToId('preguntas')} className="hover:text-white active:text-white">
               Preguntas
             </button>
-            <Link to="/login" className="hover:text-white">
+            <Link to="/login" className="hover:text-white active:text-white">
               Ingresar
             </Link>
           </div>
@@ -313,26 +316,29 @@ function NavBarItems() {
       <button
         type="button"
         onClick={() => scrollToId('funciones')}
-        className="hidden text-sm font-medium text-zinc-400 transition-colors hover:text-white sm:block"
+        className="hidden text-sm font-medium text-zinc-400 transition-colors hover:text-white active:text-white sm:block"
       >
         Funciones
       </button>
       <button
         type="button"
         onClick={() => scrollToId('planes')}
-        className="hidden text-sm font-medium text-zinc-400 transition-colors hover:text-white sm:block"
+        className="hidden text-sm font-medium text-zinc-400 transition-colors hover:text-white active:text-white sm:block"
       >
         Planes
       </button>
       <AppSwitcher className="shrink-0" />
-      <Link to="/login" className={cn(PILL_LINK, 'border border-white/20 text-white hover:bg-white/10')}>
+      <Link
+        to="/login"
+        className={cn(PILL_LINK, 'border border-white/20 text-white hover:bg-white/10 active:bg-white/15')}
+      >
         <LogIn className="size-3.5" />
         Ingresar
       </Link>
       {PLATFORM_EMAIL && (
         <a
           href={mailtoLink(PLATFORM_EMAIL, EMAIL_GENERAL_SUBJECT) ?? undefined}
-          className={cn(PILL_LINK, 'bg-brand-500 text-white')}
+          className={cn(PILL_LINK, 'bg-brand-500 text-white active:bg-brand-600')}
         >
           <Mail className="size-3.5" />
           Escribinos
@@ -362,7 +368,7 @@ function ClientsSection() {
           <Link
             key={c.id}
             to={publicClinicRoute(c.id)}
-            className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-zinc-900 px-4 py-3 transition-colors hover:border-brand-500/50 hover:bg-zinc-800"
+            className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-zinc-900 px-4 py-3 transition-colors hover:border-brand-500/50 hover:bg-zinc-800 active:border-brand-500/50 active:bg-zinc-800"
           >
             <LogoImage
               src={c.logoURL}
